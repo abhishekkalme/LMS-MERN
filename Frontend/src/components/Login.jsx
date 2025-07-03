@@ -32,7 +32,7 @@ const Login = () => {
       const response = await axios.post(`${Backurl}/api/auth/google`, {
         email,
         password,
-      });
+      },{ withCredentials: true });
 
       login(response.data.user, response.data.token);
       toast.success("Login successful!");
@@ -55,7 +55,8 @@ const Login = () => {
           email: decoded.email,
           googleId: decoded.sub,
           avatar: decoded.picture,
-        }
+        },
+        { withCredentials: true }
       );
 
       login(response.data.user, response.data.token);

@@ -8,7 +8,7 @@ export default defineConfig({
     historyApiFallback: true,
     proxy: {
       '/api': {
-        target: 'https://lms-learning-management-system-gold.vercel.app',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
       }

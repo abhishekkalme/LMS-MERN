@@ -51,7 +51,8 @@ const Register = () => {
         name,
         email,
         password,
-      });
+      },
+      { withCredentials: true });
 
       toast.success("OTP sent to your email");
       navigate("/verify-otp", { state: { email } });
@@ -71,7 +72,8 @@ const Register = () => {
         email: decoded.email,
         googleId: decoded.sub,
         avatar: decoded.picture,
-      });
+      },
+      { withCredentials: true });
 
       login(response.data.user, response.data.token);
       toast.success("Google account registered & logged in!");
