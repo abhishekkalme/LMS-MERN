@@ -16,8 +16,10 @@ app.use(express.json());
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://lms-learning-management-system25.vercel.app",
   process.env.CLIENT_URL,
 ];
+
 
 app.use(cors({
   origin: function (origin, callback) {
