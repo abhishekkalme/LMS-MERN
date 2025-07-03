@@ -25,7 +25,7 @@ const Header = () => {
 
   return (
     <>
-      <div className="bg-[#6366f1] text-white text-center py-1 text-sm">
+      <div className="bg-[#6366f1] text-white text-center py-1 text-xs">
         Welcome to JIT Learning System - Your Academic Resource Center
       </div>
 
@@ -36,10 +36,10 @@ const Header = () => {
           exit={{ opacity: 0, y: -30 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="max-w-8xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="max-w-8xl mx-auto px-4 h-14 flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <span className="w-8 h-8 bg-[#6366F1] rounded-full flex items-center justify-center text-white overflow-hidden">
+              <span className="w-6 h-6 bg-[#6366F1] rounded-full flex items-center justify-center text-white overflow-hidden">
                 <img
                   src={logoIcon}
                   alt="Logo"
@@ -48,7 +48,7 @@ const Header = () => {
               </span>
 
               <Link to={"/"}>
-                <span className="text-xl font-semibold text-[#6366F1] dark:text-white">
+                <span className=" font-semibold text-[#6366F1] dark:text-white">
                   JIT Learning
                 </span>
               </Link>
@@ -110,7 +110,7 @@ const Header = () => {
               <div className="hidden md:block">
                 {isLoggedIn ? (
                   <>
-                    <span className="font-medium mr-3">
+                    <span className="font-medium text-sm mr-3">
                       {user?.name?.split(" ")[0]}
                     </span>
                     <button
@@ -132,7 +132,7 @@ const Header = () => {
               <div className="md:hidden">
                 <button
                   onClick={toggleMenu}
-                  className="text-2xl text-gray-700 dark:text-white"
+                  className="text-xl text-gray-700 dark:text-white"
                 >
                   {isMenuOpen ? <RiCloseLine /> : <RiMenuLine />}
                 </button>
@@ -162,7 +162,7 @@ const Header = () => {
                       : `/${item.toLowerCase().replace(" ", "")}`
                   }
                   onClick={() => setIsMenuOpen(false)}
-                  className="block mx-3 mt-3 border-b border-gray-300 dark:border-gray-700 text-lg font-medium text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+                  className="block mx-3 mt-3 border-b border-gray-300 dark:border-gray-700 text-sm font-medium text-gray-800 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition"
                 >
                   {item}
                 </NavLink>

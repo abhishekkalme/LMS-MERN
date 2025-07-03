@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useLocation, Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
+const Backurl = import.meta.env.VITE_API_BASE_URL;
 
 const clean = (str) => str.replace(/\s+/g, "_");
 
@@ -80,7 +81,7 @@ const CoursePage = () => {
           {subject.units.map((unit, index) => {
             const unitNumber = index + 1;
             const formattedSemester = `Semester_${semester.replace(/\D/g, "")}`;
-            const downloadUrl = `http://localhost:5000/api/download/${clean(
+            const downloadUrl = `${Backurl}/api/download/${clean(
               branch
             )}/${clean(year)}/${clean(
               formattedSemester
