@@ -15,6 +15,7 @@ const app = express();
 app.use(express.json());
 
 const allowedOrigins = [
+  "https://lms-learning-management-system.netlify.app",
   "http://localhost:5173",
 
   process.env.CLIENT_URL,
