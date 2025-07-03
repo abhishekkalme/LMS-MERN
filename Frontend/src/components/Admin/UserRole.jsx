@@ -4,6 +4,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
 
+const Backurl = import.meta.env.VITE_API_BASE_URL;
+
+
 const UserRole = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +30,7 @@ const UserRole = () => {
     setRefreshing(true);
     setLoading(true);
     try {
-      const res = await axios.get("/api/admin/users", {
+      const res = await axios.get(`${Backurl}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -57,7 +60,7 @@ const UserRole = () => {
   const handleRoleChange = async (userId, newRole) => {
     try {
       const res = await axios.put(
-        `/api/admin/users/${userId}/role`,
+        `${Backurl}/api/admin/users/${userId}/role`,
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -77,7 +80,7 @@ const UserRole = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await axios.delete(`/api/admin/users/${userId}`, {
+      await axios.delete(`${Backurl}/api/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("User deleted");
