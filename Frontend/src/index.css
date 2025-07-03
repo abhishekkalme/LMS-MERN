@@ -1,0 +1,49 @@
+@import './tailwind.css';
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities; 
+
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth; 
+
+}
+
+  
+::-webkit-scrollbar {
+    width: 0px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #888; 
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
+
+#nprogress {
+    pointer-events: none;
+  }
+  
+  #nprogress .bar {
+    background: #f16363 !important; 
+    height: 3px !important;          
+  }
+  
+  #nprogress .spinner {
+    display: none !important;
+  }
+  
+  
