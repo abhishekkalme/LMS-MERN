@@ -28,23 +28,19 @@
 </p>
 <br>
 
+---
+
 <img src="./Screenshot/Screenshot.png" alt="App Screenshot" width="100%"/>
 
-🔗 **Live Demo**: [https://lms-learning-management-system.netlify.app/](https://lms-learning-management-system.netlify.app/)
+💣 **Live Demo**: [https://lms-learning-management-system.netlify.app/](https://lms-learning-management-system.netlify.app/)
 
-
+---
 ## 🔗 Quick Links
 
-- [📍 Overview](#-overview)
-- [👾 Features](#-features)
-- [📁 Project Structure](#-project-structure)
-- [🚀 Getting Started](#-getting-started)
-- [📌 Project Roadmap](#-project-roadmap)
-- [🔰 Contributing](#-contributing)
-- [🎗 License](#-license)
-- [🙌 Acknowledgments](#-acknowledgments)
+
 - [📍 Overview](#-Overview)
 - [👾 Features](#-features)
+- [🧠 Tech Stack](#-Tech-Stack)
 - [📁 Project Structure](#-project-structure)
 
 - [🚀 Getting Started](#-getting-started)
@@ -83,6 +79,18 @@
 - ☁️ **Cloudinary** structured uploads.
 
 ---
+
+
+## 🧠 Tech Stack
+
+| Layer         | Tech Used                         |
+|---------------|-----------------------------------|
+| Frontend      | React.js + Vite, Tailwind CSS     |
+| Backend       | Node.js, Express.js               |
+| Database      | MongoDB + Mongoose                |
+| Auth          | JWT (Access + Refresh) + Cookies  |
+| Cloud Storage | Cloudinary SDK                    |
+| Email         | Gmail for OTP mails  |
 
 ## 📁 Project Structure
 
@@ -262,4 +270,10 @@ React
 - [RGPV Syllabus Data](https://www.rgpv.ac.in/)
 
 
+---
+### 🤝 Connect
+
+- [LinkdIn](https://www.linkedin.com/in/abhishek-kalme-289a7430a/)
+
+- [Email](mailto:abhishekkalme0@gmail.com)
 ---
