@@ -3,12 +3,13 @@
 
 <p align="center"><em>LMS-MERN: A full-stack Learning Management System with Authentication, Role-based Access, Notes Management, Cloudinary Integration, and Syllabus Uploads.</em></p>
 
-<p align="left">
-	<img src="https://img.shields.io/github/license/abhishekkalme/LMS-MERN?style=flat-square&color=blue&logo=opensourceinitiative&logoColor=white" alt="license">
-	<img src="https://img.shields.io/github/last-commit/abhishekkalme/LMS-MERN?style=flat-square&color=orange&logo=git&logoColor=white" alt="last-commit">
-	<img src="https://img.shields.io/github/languages/top/abhishekkalme/LMS-MERN?style=flat-square&color=yellow&logo=javascript&logoColor=black" alt="top-language">
-	<img src="https://img.shields.io/github/languages/count/abhishekkalme/LMS-MERN?style=flat-square&color=success&logo=visualstudiocode&logoColor=white" alt="language-count">
-</p>
+
+
+[![License](https://img.shields.io/github/license/abhishekkalme/LMS-MERN?style&color=blue&logo=opensourceinitiative&logoColor=white)](https://github.com/abhishekkalme/LMS-MERN/blob/main/LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/abhishekkalme/LMS-MERN?&color=orange&logo=git&logoColor=white)](https://github.com/abhishekkalme/LMS-MERN/commits/main)
+[![Top Language](https://img.shields.io/github/languages/top/abhishekkalme/LMS-MERN?&color=yellow&logo=javascript&logoColor=yellow)](https://github.com/abhishekkalme/LMS-MERN)
+[![Language Count](https://img.shields.io/github/languages/count/abhishekkalme/LMS-MERN?style&color=success&logo=visualstudiocode&logoColor=white)](https://github.com/abhishekkalme/LMS-MERN)
+
 <p align="left">Built with the tools and technologies:</p>
 
 [![React](https://img.shields.io/badge/React-19.0.0-61DAFB?logo=react&logoColor)](https://reactjs.org/)
@@ -183,8 +184,8 @@ Run the test suite using the following command:
 ## 🔰 Contributing
 
 - **💬 [Join the Discussions](https://github.com/abhishekkalme/LMS-MERN/discussions)**: Share your insights, provide feedback, or ask questions.
-- **🐛 [Report Issues](https://github.com/abhishekkalme/LMS-MERN/issues)**: Submit bugs found or log feature requests for the `LMS-MERN` project.
-- **💡 [Submit Pull Requests](https://github.com/abhishekkalme/LMS-MERN/blob/main/CONTRIBUTING.md)**: Review open PRs, and submit your own PRs.
+- **🐛 [Report Issues](https://github.com/abhishekkalme/LMS-MERN/issues)**: Submit bugs or feature requests.
+- **💡 [Submit Pull Requests](https://github.com/abhishekkalme/LMS-MERN/blob/main/CONTRIBUTING.md)**: Review open PRs and submit your own.
 
 <details closed>
  <summary>Contributing Guidelines</summary>
@@ -192,40 +193,53 @@ Run the test suite using the following command:
 1. **Fork the Repository**: Start by forking the project repository to your github account.
 2. **Clone Locally**: Clone the forked repository to your local machine using a git client.
    ```sh
-   git clone https://github.com/abhishekkalme/LMS-MERN
+   git clone https://github.com/abhishekkalme/LMS-MERN.git
+   cd LMS-MERN
    ```
-3. **Create a New Branch**: Always work on a new branch, giving it a descriptive name.
+3. **Create a New Branch**: Always create a new branch for your changes.
    ```sh
-   git checkout -b new-feature-x
+   git checkout -b feature/your-feature-name
+
    ```
-4. **Make Your Changes**: Develop and test your changes locally.
+4. **Make Your Changes**: Implement the changes or fix the issue. Test thoroughly before committing.
 5. **Commit Your Changes**: Commit with a clear message describing your updates.
    ```sh
-   git commit -m 'Implemented new feature x.'
+   git add . 
+   git commit -m "Add: Implemented feature XYZ"
    ```
-6. **Push to github**: Push the changes to your forked repository.
+
+6. **Push to Your Fork on GitHub**: Push your branch to your GitHub repository:
+
+
    ```sh
-   git push origin new-feature-x
+   git push origin feature/your-feature-name
+
    ```
-7. **Submit a Pull Request**: Create a PR against the original project repository. Clearly describe the changes and their motivations.
-8. **Review**: Once your PR is reviewed and approved, it will be merged into the main branch. Congratulations on your contribution!
+7. **Open a Pull Request**: 
+- Go to the original LMS-MERN repository.
+- Click "Compare & pull request".
+- Provide a meaningful PR title and description.
+- Submit the pull request.
+
+8. **Get Reviewed & Merged**: Wait for maintainers to review your PR. Once approved, it will be merged into the main branch.. ✅Congratulations on your contribution!
 </details>
 
 <details closed>
 <summary>Contributor Graph</summary>
 <br>
 <p align="left">
-   <a href="https://github.com{/abhishekkalme/LMS-MERN/}graphs/contributors">
-      <img src="https://contrib.rocks/image?repo=abhishekkalme/LMS-MERN">
-   </a>
+  <a href="https://github.com/abhishekkalme/LMS-MERN/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=abhishekkalme/LMS-MERN" alt="Contributors"/>
+  </a>
 </p>
 </details>
+
 
 ---
 
 ## 🎗 License
 
-This project is protected under the [SELECT-A-LICENSE](https://choosealicense.com/licenses) License. For more details, refer to the [LICENSE](https://choosealicense.com/licenses/) file.
+This project is protected under the [SELECT-A-LICENSE](https://github.com/abhishekkalme/LMS-MERN?tab=MIT-1-ov-file#) License. For more details, refer to the [LICENSE](https://github.com/abhishekkalme/LMS-MERN?tab=MIT-1-ov-file#) file.
 
 ---
 
