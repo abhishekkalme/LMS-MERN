@@ -28,6 +28,11 @@
 </p>
 <br>
 
+<img src="./Screenshot/Screenshot.png" alt="App Screenshot" width="100%"/>
+
+🔗 **Live Demo**: [https://lms-learning-management-system.netlify.app/](https://lms-learning-management-system.netlify.app/)
+
+
 ## 🔗 Quick Links
 
 - [📍 Overview](#-overview)
@@ -41,7 +46,7 @@
 - [📍 Overview](#-Overview)
 - [👾 Features](#-features)
 - [📁 Project Structure](#-project-structure)
-  - [📂 Project Index](#-project-index)
+
 - [🚀 Getting Started](#-getting-started)
   - [☑️ Prerequisites](#-prerequisites)
   - [⚙️ Installation](#-installation)
