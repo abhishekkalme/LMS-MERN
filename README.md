@@ -1,3 +1,6 @@
+# 📒JIT Learning System - Full-Stack Learning Management 
+
+
 <p align="center"><em>LMS-MERN: A full-stack Learning Management System with Authentication, Role-based Access, Notes Management, Cloudinary Integration, and Syllabus Uploads.</em></p>
 
 <p align="left">
@@ -7,13 +10,20 @@
 	<img src="https://img.shields.io/github/languages/count/abhishekkalme/LMS-MERN?style=flat-square&color=success&logo=visualstudiocode&logoColor=white" alt="language-count">
 </p>
 <p align="left">Built with the tools and technologies:</p>
-<p align="left">
-	<img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React" />
-	<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" />
-	<img src="https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white" alt="Express.js" />
-	<img src="https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white" alt="MongoDB" />
-	<img src="https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="TailwindCSS" />
-	<img src="https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white" alt="npm">
+
+[![React](https://img.shields.io/badge/React-19.0.0-61DAFB?logo=react&logoColor)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-4.0-646CFF?logo=vite&logoColor)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-38B2AC?logo=tailwindcss&logoColor)](https://tailwindcss.com/)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/9d6e7c76-d24b-4e9b-a489-43f5b0ca640c/deploy-status)](https://app.netlify.com/sites/lms-learning-management-system/deploys)
+[![Node.js](https://img.shields.io/badge/Node.js-v20.0.0-green?logo=node.js&logoColor)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.18.2-black?logo=express&logoColor)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-v6.0.0-47A248?logo=mongodb&logoColor)](https://mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v3.4.1-06B6D4?logo=tailwindcss&logoColor)](https://tailwindcss.com/)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-CDN-yellow?logo=cloudinary&logoColor)](https://cloudinary.com/)
+[![NPM](https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor)](https://www.npmjs.com/)
+
+
+
 </p>
 <br>
 
