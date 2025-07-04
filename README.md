@@ -155,19 +155,18 @@ Run the test suite using the following command:
 
 ## 📌 Project Roadmap
 
- Setup Authentication (JWT + OTP + Email)
+- Setup Authentication (JWT + OTP + Email)
 
- PDF Uploading (Cloudinary with folder structure)
+- PDF Uploading (Cloudinary with folder structure)
 
- Admin Approval + Feedback
+- Admin Approval + Feedback
 
- Role-based UI rendering
+- Role-based UI rendering
 
- AI-based note summaries (Upcoming 🚀)
+- AI-based note summaries (Upcoming 🚀)
 
- Download Analytics Dashboard
+- Download Analytics Dashboard
 
- Custom Profile Pages
 
 ---
 
@@ -178,7 +177,7 @@ Run the test suite using the following command:
 - **💡 [Submit Pull Requests](https://github.com/abhishekkalme/LMS-MERN/blob/main/CONTRIBUTING.md)**: Review open PRs, and submit your own PRs.
 
 <details closed>
-<summary>Contributing Guidelines</summary>
+ <summary>Contributing Guidelines</summary>
 
 1. **Fork the Repository**: Start by forking the project repository to your github account.
 2. **Clone Locally**: Clone the forked repository to your local machine using a git client.
@@ -222,19 +221,16 @@ This project is protected under the [SELECT-A-LICENSE](https://choosealicense.co
 
 ## 🙌 Acknowledgments
 
-- List any resources, contributors, inspiration, etc. here.
+ List any resources, contributors, inspiration, etc. here.
 React
 
-Node.js
+- [React](https://reactjs.org/)
+- [Node.js](https://nodejs.org/)
+- [MongoDB](https://www.mongodb.com/)
+- [Cloudinary](https://cloudinary.com/)
+- [Render](https://render.com/)
+- [Netlify](https://netlify.com/)
+- [RGPV Syllabus Data](https://www.rgpv.ac.in/)
 
-MongoDB
-
-Cloudinary
-
-Render
-
-Netlify
-
-RGPV Syllabus Data
 
 ---
