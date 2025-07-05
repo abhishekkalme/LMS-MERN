@@ -1,4 +1,4 @@
-# 📒JIT Learning System - Full-Stack Learning Management 
+# 📒JIT Learning - Full-Stack Learning Management System 
 
 
 <p align="center"><em>LMS-MERN: A full-stack Learning Management System with Authentication, Role-based Access, Notes Management, Cloudinary Integration, and Syllabus Uploads.</em></p>
@@ -22,11 +22,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v3.4.1-06B6D4?logo=tailwindcss&logoColor)](https://tailwindcss.com/)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-CDN-yellow?logo=cloudinary&logoColor)](https://cloudinary.com/)
 [![NPM](https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor)](https://www.npmjs.com/)
-
-
-
 </p>
-<br>
 
 ---
 
@@ -42,7 +38,6 @@
 - [👾 Features](#-features)
 - [🧠 Tech Stack](#-Tech-Stack)
 - [📁 Project Structure](#-project-structure)
-
 - [🚀 Getting Started](#-getting-started)
   - [☑️ Prerequisites](#-prerequisites)
   - [⚙️ Installation](#-installation)
@@ -52,6 +47,7 @@
 - [🔰 Contributing](#-contributing)
 - [🎗 License](#-license)
 - [🙌 Acknowledgments](#-acknowledgments)
+- [🤝 Connect](#-Connect)
 
 ---
 
