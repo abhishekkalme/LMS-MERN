@@ -7,7 +7,6 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import * as jwtDecode from "jwt-decode"; // Netlify-compatible import
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -36,11 +35,6 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      if (!response.data.user) {
-        toast.error("You must register and verify your email first");
-        return;
-      }
-
       login(response.data.user, response.data.token);
       toast.success("Login successful!");
       setTimeout(() => navigate("/"), 1000);
@@ -58,43 +52,28 @@ const Login = () => {
       return;
     }
 
-    let decoded;
-    try {
-      // IMPORTANT: use .default when importing * as jwtDecode
-      decoded = jwtDecode.default(credentialResponse.credential);
-    } catch (err) {
-      console.error("JWT Decode Error:", err);
-      toast.error("Google login failed: invalid token");
-      return;
-    }
-
     try {
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
-        { email: decoded.email },
+        { token: credentialResponse.credential }, // send full credential
         { withCredentials: true }
       );
 
       login(response.data.user, response.data.token);
       toast.success("Google login successful!");
       setTimeout(() => navigate("/"), 1000);
-    } catch (error) {
-      console.error("Google Login Error:", error);
+    } catch (err) {
+      const serverMessage = err.response?.data?.message;
+      toast.error(serverMessage || "Google login failed");
 
-      // Handle unregistered users
-      const serverMessage = error.response?.data?.message;
-      if (serverMessage) {
-        toast.error(serverMessage);
-        if (error.response.status === 403) {
-          setTimeout(() => navigate("/register"), 1500);
-        }
-      } else {
-        toast.error("Google login failed");
+      // Redirect unregistered users to /register
+      if (err.response?.status === 403 || serverMessage?.includes("register")) {
+        setTimeout(() => navigate("/register"), 1500);
       }
     }
   };
 
-  // ===== INFO MESSAGE FROM REDIRECTS =====
+  // ===== Info message from redirects =====
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -199,7 +178,10 @@ const Login = () => {
 
           <GoogleLogin
             onSuccess={handleGoogleLogin}
-            onError={() => toast.error("Google Login Failed")}
+            onError={() => {
+              toast.error("Google login failed");
+              setTimeout(() => navigate("/register"), 1500);
+            }}
             theme="outline"
             size="large"
             type="standard"
