@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import jwtDecode from "jwt-decode";
+import * as jwtDecode from "jwt-decode"; 
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -24,14 +24,14 @@ const Login = () => {
   const [messageKey, setMessageKey] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // ------------------ Normal Email/Password Login ------------------
+  // Email/Password Login
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const response = await axios.post(
-        `${Backurl}/api/auth/login`, // Correct login endpoint
+        `${Backurl}/api/auth/login`,
         { email, password },
         { withCredentials: true }
       );
@@ -46,10 +46,10 @@ const Login = () => {
     }
   };
 
-  // ------------------ Google Login ------------------
+  // Google OAuth Login
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const decoded = jwtDecode(credentialResponse.credential);
+      const decoded = jwtDecode.default(credentialResponse.credential);
 
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
@@ -66,12 +66,12 @@ const Login = () => {
       toast.success("Google login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (error) {
-      toast.error("Google login failed");
       console.error("Google Login Error:", error);
+      toast.error("Google login failed");
     }
   };
 
-  // ------------------ Info Message from Redirect ------------------
+  // Info message from redirects
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -82,13 +82,10 @@ const Login = () => {
       setInfoMessage(message);
       setMessageKey(triggerTime);
 
-      const timer = setTimeout(() => {
-        setInfoMessage(null);
-      }, 3000);
-
+      const timer = setTimeout(() => setInfoMessage(null), 3000);
       return () => clearTimeout(timer);
     }
-  }, [location]);
+  }, [location, messageKey]);
 
   return (
     <>
@@ -108,14 +105,13 @@ const Login = () => {
         <div className="max-w-md w-full bg-white dark:bg-gray-900 p-8 mb-20 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Welcome Back 👋
+              Welcome Back👋
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mt-2">
               Please sign in to your account
             </p>
           </div>
 
-          {/* ------------------ Login Form ------------------ */}
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -172,14 +168,12 @@ const Login = () => {
             </button>
           </form>
 
-          {/* ------------------ Divider ------------------ */}
           <div className="flex items-center my-6">
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
             <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">or</span>
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
           </div>
 
-          {/* ------------------ Google Login ------------------ */}
           <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={() => toast.error("Google Login Failed")}
@@ -190,7 +184,6 @@ const Login = () => {
             logo_alignment="center"
           />
 
-          {/* ------------------ Signup Link ------------------ */}
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?
             <Link
