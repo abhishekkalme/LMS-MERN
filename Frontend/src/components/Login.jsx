@@ -6,7 +6,6 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -24,39 +23,31 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   // ===== EMAIL/PASSWORD LOGIN =====
- // ===== EMAIL/PASSWORD LOGIN =====
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const response = await axios.post(
-      `${Backurl}/api/auth/login`,
-      { email, password },
-      { withCredentials: true }
-    );
+    try {
+      const response = await axios.post(
+        `${Backurl}/api/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-    // Successful login: backend ensures user exists and is verified
-    login(response.data.user, response.data.token);
-    toast.success("Login successful!");
-    setTimeout(() => navigate("/"), 1000);
-  } catch (err) {
-    // Show exact backend message for unverified/unregistered/invalid credentials
-    const message = err.response?.data?.message || "Login failed";
-    toast.error(message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // ===== GOOGLE BUTTON (redirect unregistered users) =====
-  const handleGoogleRedirect = () => {
-    toast.info("Please register first using email/password");
-    setTimeout(() => navigate("/register"), 1000);
+      // Successful login: backend ensures user exists and is verified
+      login(response.data.user, response.data.token);
+      toast.success("Login successful!");
+      setTimeout(() => navigate("/"), 1000);
+    } catch (err) {
+      // Show exact backend message for unverified/unregistered/invalid credentials
+      const message = err.response?.data?.message || "Login failed";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // ===== Info message from redirects =====
+  // Info message from redirects (optional)
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -152,22 +143,6 @@ const handleLogin = async (e) => {
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
-
-          <div className="flex items-center my-6">
-            <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
-            <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">or</span>
-            <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
-          </div>
-
-          <GoogleLogin
-            onSuccess={handleGoogleRedirect}
-            onError={handleGoogleRedirect}
-            theme="outline"
-            size="large"
-            type="standard"
-            shape="circle"
-            logo_alignment="center"
-          />
 
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?
