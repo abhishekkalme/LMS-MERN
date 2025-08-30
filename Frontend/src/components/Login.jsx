@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import * as jwtDecode from "jwt-decode"; 
+import jwtDecode from "jwt-decode";
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -21,14 +21,13 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [infoMessage, setInfoMessage] = useState(null);
-  const [loginMessage, setLoginMessage] = useState(null);
+  const [messageKey, setMessageKey] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // ===== EMAIL/PASSWORD LOGIN =====
+  // Email/Password Login
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setLoginMessage(null);
 
     try {
       const response = await axios.post(
@@ -37,19 +36,22 @@ const Login = () => {
         { withCredentials: true }
       );
 
+      if (!response.data.user) {
+        toast.error("You must register and verify your email first");
+        return;
+      }
+
       login(response.data.user, response.data.token);
       toast.success("Login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
-      const message = err.response?.data?.message || "Login failed";
-      setLoginMessage(message);
-      toast.error(message);
+      toast.error(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // ===== GOOGLE LOGIN =====
+  // Google OAuth Login
   const handleGoogleLogin = async (credentialResponse) => {
     if (!credentialResponse?.credential) {
       toast.error("Google login failed: no credential returned");
@@ -58,7 +60,7 @@ const Login = () => {
 
     let decoded;
     try {
-      decoded = jwtDecode.default(credentialResponse.credential); // decode JWT
+      decoded = jwtDecode(credentialResponse.credential);
     } catch (err) {
       console.error("JWT Decode Error:", err);
       toast.error("Google login failed: invalid token");
@@ -76,14 +78,18 @@ const Login = () => {
       toast.success("Google login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (error) {
+      console.error("Google Login Error:", error);
+
       const serverMessage = error.response?.data?.message;
       if (serverMessage) {
         toast.error(serverMessage);
         if (error.response.status === 403) {
-          setTimeout(() => navigate("/register"), 1500); // redirect unregistered user
+          // Redirect unregistered Google users to register
+          setTimeout(() => navigate("/register"), 1500);
         }
       } else {
-        toast.error("Google login failed");
+        toast.error("Google login failed. Please register first.");
+        setTimeout(() => navigate("/register"), 1500);
       }
     }
   };
@@ -91,12 +97,18 @@ const Login = () => {
   // Info message from redirects
   useEffect(() => {
     const { message } = location.state || {};
-    if (message) {
+    const queryParams = new URLSearchParams(location.search);
+    const reason = queryParams.get("reason");
+    const triggerTime = queryParams.get("t");
+
+    if (message && reason === "unauthorized" && triggerTime !== messageKey) {
       setInfoMessage(message);
+      setMessageKey(triggerTime);
+
       const timer = setTimeout(() => setInfoMessage(null), 3000);
       return () => clearTimeout(timer);
     }
-  }, [location]);
+  }, [location, messageKey]);
 
   return (
     <>
@@ -114,7 +126,7 @@ const Login = () => {
 
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-violet-200 dark:from-gray-900 dark:to-gray-800 px-4">
         <div className="max-w-md w-full bg-white dark:bg-gray-900 p-8 mb-20 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-center mb-4">
+          <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               Welcome Back 👋
             </h2>
@@ -122,12 +134,6 @@ const Login = () => {
               Please sign in to your account
             </p>
           </div>
-
-          {loginMessage && (
-            <div className="mb-4 px-4 py-2 rounded-md bg-red-100 border border-red-400 text-red-700 text-sm">
-              {loginMessage}
-            </div>
-          )}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
@@ -193,7 +199,10 @@ const Login = () => {
 
           <GoogleLogin
             onSuccess={handleGoogleLogin}
-            onError={() => toast.error("Google Login Failed")}
+            onError={() => {
+              toast.error("Google login failed. Please register first.");
+              setTimeout(() => navigate("/register"), 1500);
+            }}
             theme="outline"
             size="large"
             type="standard"
