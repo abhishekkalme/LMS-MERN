@@ -482,20 +482,22 @@ router.post("/google", async (req, res) => {
   try {
     const { email } = req.body;
 
+    if (!email) {
+      return res.status(400).json({ message: "Email is required for Google login" });
+    }
+
     // Check if user exists in the database
     const user = await User.findOne({ email });
 
     if (!user) {
-      // If user doesn't exist, reject the login attempt
       return res.status(403).json({
         message: "This Google account is not registered. Please register first.",
       });
     }
 
-    // If user exists, generate a JWT token
+    // User exists: generate JWT token
     const token = generateToken(user);
 
-    // Return user info and token
     return res.status(200).json({
       token,
       user: {
@@ -507,7 +509,9 @@ router.post("/google", async (req, res) => {
     });
   } catch (err) {
     console.error("Google Login Error:", err);
-    return res.status(500).json({ message: "Google Sign-In failed due to server error" });
+    return res.status(500).json({
+      message: "Google Sign-In failed due to server error",
+    });
   }
 });
 
