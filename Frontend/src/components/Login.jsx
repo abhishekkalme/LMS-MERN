@@ -6,6 +6,8 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GoogleLogin } from "@react-oauth/google";
+import * as jwtDecode from "jwt-decode"; 
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -18,15 +20,15 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [infoMessage, setInfoMessage] = useState(null); // redirect info
-  const [loginMessage, setLoginMessage] = useState(null); // login error/warning
+  const [infoMessage, setInfoMessage] = useState(null);
+  const [loginMessage, setLoginMessage] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
   // ===== EMAIL/PASSWORD LOGIN =====
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setLoginMessage(null); // clear previous messages
+    setLoginMessage(null);
 
     try {
       const response = await axios.post(
@@ -35,12 +37,10 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      // Successful login: backend ensures user exists and is verified
       login(response.data.user, response.data.token);
       toast.success("Login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
-      // Show exact backend message inline
       const message = err.response?.data?.message || "Login failed";
       setLoginMessage(message);
       toast.error(message);
@@ -49,16 +49,50 @@ const Login = () => {
     }
   };
 
-  // Info message from redirects (optional)
+  // ===== GOOGLE LOGIN =====
+  const handleGoogleLogin = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      toast.error("Google login failed: no credential returned");
+      return;
+    }
+
+    let decoded;
+    try {
+      decoded = jwtDecode.default(credentialResponse.credential); // decode JWT
+    } catch (err) {
+      console.error("JWT Decode Error:", err);
+      toast.error("Google login failed: invalid token");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${Backurl}/api/auth/google`,
+        { email: decoded.email },
+        { withCredentials: true }
+      );
+
+      login(response.data.user, response.data.token);
+      toast.success("Google login successful!");
+      setTimeout(() => navigate("/"), 1000);
+    } catch (error) {
+      const serverMessage = error.response?.data?.message;
+      if (serverMessage) {
+        toast.error(serverMessage);
+        if (error.response.status === 403) {
+          setTimeout(() => navigate("/register"), 1500); // redirect unregistered user
+        }
+      } else {
+        toast.error("Google login failed");
+      }
+    }
+  };
+
+  // Info message from redirects
   useEffect(() => {
     const { message } = location.state || {};
-    const queryParams = new URLSearchParams(location.search);
-    const reason = queryParams.get("reason");
-    const triggerTime = queryParams.get("t");
-
-    if (message && reason === "unauthorized") {
+    if (message) {
       setInfoMessage(message);
-
       const timer = setTimeout(() => setInfoMessage(null), 3000);
       return () => clearTimeout(timer);
     }
@@ -66,7 +100,6 @@ const Login = () => {
 
   return (
     <>
-      {/* Redirect info message */}
       {infoMessage && (
         <div className="fixed mt-3 left-1/2 transform -translate-x-1/2 z-50 px-4 py-3 rounded-md bg-yellow-100 border border-yellow-400 text-yellow-800 text-sm font-medium shadow-md flex items-center justify-between gap-4 max-w-md w-[90%]">
           <span className="flex-1">{infoMessage}</span>
@@ -90,7 +123,6 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Inline login message */}
           {loginMessage && (
             <div className="mb-4 px-4 py-2 rounded-md bg-red-100 border border-red-400 text-red-700 text-sm">
               {loginMessage}
@@ -152,6 +184,22 @@ const Login = () => {
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
+
+          <div className="flex items-center my-6">
+            <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
+            <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">or</span>
+            <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
+          </div>
+
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => toast.error("Google Login Failed")}
+            theme="outline"
+            size="large"
+            type="standard"
+            shape="circle"
+            logo_alignment="center"
+          />
 
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?
