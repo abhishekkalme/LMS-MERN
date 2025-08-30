@@ -114,7 +114,21 @@ const Login = () => {
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          
+            <form onSubmit={handleLogin} className="space-y-5">
+  {/* Inline message box above email input */}
+  {infoMessage && (
+    <div className="mb-3 px-4 py-3 rounded-md bg-yellow-100 border border-yellow-400 text-yellow-800 text-sm font-medium shadow-sm flex items-center justify-between">
+      <span className="flex-1">{infoMessage}</span>
+      <button
+        type="button"
+        onClick={() => setInfoMessage(null)}
+        className="text-yellow-800 hover:text-red-600 text-lg font-bold ml-3"
+      >
+        &times;
+      </button>
+    </div>
+  )}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email Address
