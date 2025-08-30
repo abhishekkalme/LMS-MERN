@@ -7,6 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
+import * as jwtDecode from "jwt-decode"; 
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -47,6 +48,53 @@ const Login = () => {
       toast.error(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Google OAuth Login
+  const handleGoogleLogin = async (credentialResponse) => {
+    if (!credentialResponse?.credential) {
+      toast.error("Google login failed: no credential returned");
+      return;
+    }
+
+    let decoded;
+    try {
+      decoded = jwtDecode.default(credentialResponse.credential);
+    } catch (err) {
+      console.error("JWT Decode Error:", err);
+      toast.error("Google login failed: invalid token");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${Backurl}/api/auth/google`,
+        { email: decoded.email },
+        { withCredentials: true }
+      );
+
+      if (!response.data.user) {
+        toast.error("This Google account is not registered. Please register first.");
+        setTimeout(() => navigate("/register"), 1500);
+        return;
+      }
+
+      login(response.data.user, response.data.token);
+      toast.success("Google login successful!");
+      setTimeout(() => navigate("/"), 1000);
+    } catch (error) {
+      console.error("Google Login Error:", error);
+
+      const serverMessage = error.response?.data?.message;
+      if (serverMessage) {
+        toast.error(serverMessage);
+        if (error.response.status === 403) {
+          setTimeout(() => navigate("/register"), 1500);
+        }
+      } else {
+        toast.error("Google login failed");
+      }
     }
   };
 
@@ -153,16 +201,9 @@ const Login = () => {
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
           </div>
 
-          {/* Google login button now redirects to /register */}
           <GoogleLogin
-            onSuccess={() => {
-              toast.info("Please register first using email/password");
-              setTimeout(() => navigate("/register"), 1000);
-            }}
-            onError={() => {
-              toast.error("Google login is not available. Please register first.");
-              setTimeout(() => navigate("/register"), 1000);
-            }}
+            onSuccess={handleGoogleLogin}
+            onError={() => toast.error("Google Login Failed")}
             theme="outline"
             size="large"
             type="standard"
