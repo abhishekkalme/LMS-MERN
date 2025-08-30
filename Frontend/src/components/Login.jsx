@@ -183,11 +183,11 @@ const Login = () => {
         <GoogleLogin
           onSuccess={handleGoogleLogin}
           onError={() => showMessage("Google login failed")}
-          theme="filled_blue"       
+          theme="outline "       
   size="medium"          
-  type="icon"               
+  type="standard "               
   shape="pill"              
-  logo_alignment="left" 
+  logo_alignment="center" 
         />
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
