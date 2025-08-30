@@ -60,7 +60,7 @@ const Login = () => {
 
     let decoded;
     try {
-      decoded = jwtDecode.default(credentialResponse.credential);
+      decoded = jwtDecode(credentialResponse.credential);
     } catch (err) {
       console.error("JWT Decode Error:", err);
       toast.error("Google login failed: invalid token");
@@ -74,18 +74,13 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      if (!response.data.user) {
-        toast.error("This Google account is not registered. Please register first.");
-        setTimeout(() => navigate("/register"), 1500);
-        return;
-      }
-
       login(response.data.user, response.data.token);
       toast.success("Google login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (error) {
       console.error("Google Login Error:", error);
 
+      // Show backend message if available
       const serverMessage = error.response?.data?.message;
       if (serverMessage) {
         toast.error(serverMessage);
