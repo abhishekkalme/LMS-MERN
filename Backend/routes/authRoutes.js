@@ -487,21 +487,16 @@ router.post("/google", async (req, res) => {
     }
 
     // Check if user exists
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
-      // Create new user automatically
-      user = await User.create({
-        name: name || "Google User",
-        email,
-        avatar: picture || null,
-        role: "student", // default role
-        password: null,  // since Google login
-        isVerified: true // mark as verified
+      // If user is not registered, reject login
+      return res.status(403).json({
+        message: "This Google account is not registered. Please register first.",
       });
     }
 
-    // Generate token
+    // User exists, generate token
     const token = generateToken(user);
 
     return res.status(200).json({
