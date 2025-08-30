@@ -36,6 +36,12 @@ const Login = () => {
         { withCredentials: true }
       );
 
+      // Only login if user exists and is verified
+      if (!response.data.user) {
+        toast.error("You must register and verify your email first");
+        return;
+      }
+
       login(response.data.user, response.data.token);
       toast.success("Login successful!");
       setTimeout(() => navigate("/"), 1000);
@@ -49,18 +55,23 @@ const Login = () => {
   // Google OAuth Login
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const decoded = jwtDecode.default(credentialResponse.credential);
+      const decoded = jwtDecode(credentialResponse.credential);
 
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
         {
-          name: decoded.name,
           email: decoded.email,
-          googleId: decoded.sub,
-          avatar: decoded.picture,
         },
         { withCredentials: true }
       );
+
+      // Only login if user exists in backend
+      if (!response.data.user) {
+        toast.error(
+          "You must register first using email/password before using Google login"
+        );
+        return;
+      }
 
       login(response.data.user, response.data.token);
       toast.success("Google login successful!");
@@ -105,7 +116,7 @@ const Login = () => {
         <div className="max-w-md w-full bg-white dark:bg-gray-900 p-8 mb-20 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Welcome Back👋
+              Welcome Back 👋
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mt-2">
               Please sign in to your account
@@ -198,5 +209,7 @@ const Login = () => {
     </>
   );
 };
+
+export default Login;
 
 export default Login;
