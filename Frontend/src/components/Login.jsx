@@ -60,7 +60,8 @@ const Login = () => {
 
     let decoded;
     try {
-      decoded = jwtDecode(credentialResponse.credential);
+      // IMPORTANT: use `.default` with `* as jwtDecode` import
+      decoded = jwtDecode.default(credentialResponse.credential);
     } catch (err) {
       console.error("JWT Decode Error:", err);
       toast.error("Google login failed: invalid token");
