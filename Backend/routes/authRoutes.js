@@ -480,22 +480,28 @@ router.post("/login", async (req, res) => {
 // ===== GOOGLE LOGIN =====
 router.post("/google", async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, name, picture } = req.body;
 
     if (!email) {
       return res.status(400).json({ message: "Email is required for Google login" });
     }
 
-    // Check if user exists in the database
-    const user = await User.findOne({ email });
+    // Check if user exists
+    let user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(403).json({
-        message: "This Google account is not registered. Please register first.",
+      // Create new user automatically
+      user = await User.create({
+        name: name || "Google User",
+        email,
+        avatar: picture || null,
+        role: "student", // default role
+        password: null,  // since Google login
+        isVerified: true // mark as verified
       });
     }
 
-    // User exists: generate JWT token
+    // Generate token
     const token = generateToken(user);
 
     return res.status(200).json({
@@ -514,6 +520,7 @@ router.post("/google", async (req, res) => {
     });
   }
 });
+
 
 
 router.get("/me", async (req, res) => {
