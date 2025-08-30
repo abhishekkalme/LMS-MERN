@@ -63,36 +63,22 @@ const handleGoogleLogin = async (credentialResponse) => {
       { withCredentials: true }
     );
 
-    // Only login if user exists in backend
-    if (!response.data.user) {
-      toast.error(
-        "This Google account is not registered. Please register first."
-      );
-      // Redirect to /register after short delay
-      setTimeout(() => navigate("/register"), 1500);
-      return;
-    }
-
+    // If backend allows login, proceed
     login(response.data.user, response.data.token);
     toast.success("Google login successful!");
     setTimeout(() => navigate("/"), 1000);
   } catch (error) {
     console.error("Google Login Error:", error);
 
-    const msg =
-      error.response?.data?.message ||
-      "Google login failed due to server error";
-
-    toast.error(msg);
-
-    // If 403 from backend, also redirect to /register
+    // Check for 403 from backend (user not registered)
     if (error.response?.status === 403) {
+      toast.error("This Google account is not registered. Please register first.");
       setTimeout(() => navigate("/register"), 1500);
+    } else {
+      toast.error("Google login failed");
     }
   }
 };
-
-
 
   // Info message from redirects
   useEffect(() => {
