@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import jwtDecode from "jwt-decode";
+import jwtDecode from "jwt-decode"; // ✅ Fixed import
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -31,7 +31,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        `${Backurl}/api/auth/login`, // <-- Correct login endpoint
+        `${Backurl}/api/auth/login`, // Correct login endpoint
         { email, password },
         { withCredentials: true }
       );
