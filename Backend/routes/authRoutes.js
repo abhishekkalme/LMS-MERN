@@ -438,14 +438,25 @@ router.post("/resend-otp", async (req, res) => {
   }
 });
 
+// ===== EMAIL/PASSWORD LOGIN =====
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Check if user exists in PendingUser (not verified yet)
+    const pending = await PendingUser.findOne({ email });
+    if (pending) {
+      return res.status(403).json({
+        message: "Please verify your email first. OTP is pending.",
+      });
+    }
+
+    // Check if user exists in User collection
     const user = await User.findOne({ email });
     if (!user) {
-      // User doesn't exist OR not verified
-      return res.status(400).json({ message: "You must register and verify your email first" });
+      return res.status(400).json({
+        message: "You must register and verify your email first",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -457,11 +468,7 @@ router.post("/login", async (req, res) => {
 
     res.json({
       token,
-      user: {
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: { name: user.name, email: user.email, role: user.role },
     });
   } catch (err) {
     console.error("Login Error:", err);
@@ -470,23 +477,17 @@ router.post("/login", async (req, res) => {
 });
 
 
+// ===== GOOGLE LOGIN =====
 router.post("/google", async (req, res) => {
   try {
-    const { name, email, googleId, avatar } = req.body;
+    const { email } = req.body;
 
-    let user = await User.findOne({ email });
-
+    // Only allow login if user already exists in User collection
+    const user = await User.findOne({ email });
     if (!user) {
-      user = new User({
-        name,
-        email,
-        googleId,
-        avatar,
-        isGoogle: true,
-        role: "student",
+      return res.status(403).json({
+        message: "You must register first using email/OTP",
       });
-
-      await user.save();
     }
 
     const token = generateToken(user);
@@ -500,8 +501,8 @@ router.post("/google", async (req, res) => {
         avatar: user.avatar,
       },
     });
-  } catch (error) {
-    console.error("Google Auth Error:", error);
+  } catch (err) {
+    console.error("Google Login Error:", err);
     res.status(500).json({ message: "Google Sign-In failed" });
   }
 });
