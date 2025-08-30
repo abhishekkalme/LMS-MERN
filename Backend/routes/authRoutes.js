@@ -7,7 +7,6 @@ const sendMail = require("../utils/sendMail");
 require("dotenv").config();
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-
 const router = express.Router();
 
 // Reset email HTML
