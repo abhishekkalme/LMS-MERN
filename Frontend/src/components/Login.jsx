@@ -4,10 +4,8 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Google } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 
@@ -23,6 +21,12 @@ const Login = () => {
   const [messageKey, setMessageKey] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  // ===== Unified error/info message handler =====
+  const showMessage = (msg, duration = 4000) => {
+    setInfoMessage(msg);
+    setTimeout(() => setInfoMessage(null), duration);
+  };
+
   // ===== EMAIL/PASSWORD LOGIN =====
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,14 +40,11 @@ const Login = () => {
       );
 
       login(response.data.user, response.data.token);
-      toast.success("Login successful!");
+      showMessage("Login successful!", 2000);
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
-      setInfoMessage(msg);
-
-      // auto-clear after 4 seconds
-      setTimeout(() => setInfoMessage(null), 4000);
+      showMessage(msg);
     } finally {
       setLoading(false);
     }
@@ -52,11 +53,11 @@ const Login = () => {
   // ===== GOOGLE LOGIN =====
   const handleGoogleLogin = async (credentialResponse) => {
     if (!credentialResponse?.credential) {
-      setInfoMessage("Google login failed: no credential returned");
-      setTimeout(() => setInfoMessage(null), 4000);
+      showMessage("Google login failed: no credential returned");
       return;
     }
 
+    setLoading(true);
     try {
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
@@ -65,21 +66,21 @@ const Login = () => {
       );
 
       login(response.data.user, response.data.token);
-      toast.success("Google login successful!");
+      showMessage("Google login successful!", 2000);
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       const serverMessage = err.response?.data?.message || "Google login failed";
-      setInfoMessage(serverMessage);
-      setTimeout(() => setInfoMessage(null), 4000);
+      showMessage(serverMessage);
 
-      // Redirect unregistered users to /register
-      if (err.response?.status === 403 || serverMessage?.includes("register")) {
+      if (err.response?.status === 403 || serverMessage.includes("register")) {
         setTimeout(() => navigate("/register"), 1500);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ===== Info message from redirects =====
+  // ===== Redirect messages =====
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -87,11 +88,8 @@ const Login = () => {
     const triggerTime = queryParams.get("t");
 
     if (message && reason === "unauthorized" && triggerTime !== messageKey) {
-      setInfoMessage(message);
+      showMessage(message);
       setMessageKey(triggerTime);
-
-      const timer = setTimeout(() => setInfoMessage(null), 4000);
-      return () => clearTimeout(timer);
     }
   }, [location, messageKey]);
 
@@ -183,18 +181,22 @@ const Login = () => {
           <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
         </div>
 
+        {/* ===== Custom Google Button ===== */}
+        <button
+          onClick={() => document.getElementById("google-login-btn")?.click()}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 font-medium"
+        >
+          <Google size={18} /> Sign in with Google
+        </button>
+
         <GoogleLogin
           onSuccess={handleGoogleLogin}
-          onError={() => {
-            setInfoMessage("Google login failed");
-            setTimeout(() => setInfoMessage(null), 4000);
-            setTimeout(() => navigate("/register"), 1500);
-          }}
-          theme="outline"
-          size="large"
-          type="standard"
-          shape="circle"
-          logo_alignment="center"
+          onError={() => showMessage("Google login failed")}
+          id="google-login-btn"
+          width={0}
+          height={0}
+          style={{ display: "none" }}
         />
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
