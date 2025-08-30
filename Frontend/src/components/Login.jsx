@@ -45,7 +45,7 @@ const Login = () => {
     }
   };
 
-  // ===== GOOGLE LOGIN =====
+  // ===== GOOGLE LOGIN ===== (Registered Users Only)
   const handleGoogleLogin = async (credentialResponse) => {
     if (!credentialResponse?.credential) {
       toast.error("Google login failed: no credential returned");
@@ -55,7 +55,7 @@ const Login = () => {
     try {
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
-        { token: credentialResponse.credential }, // send full credential
+        { token: credentialResponse.credential },
         { withCredentials: true }
       );
 
