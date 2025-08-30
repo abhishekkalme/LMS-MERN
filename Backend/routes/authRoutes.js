@@ -443,11 +443,15 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) {
+      // User doesn't exist OR not verified
+      return res.status(400).json({ message: "You must register and verify your email first" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
+    }
 
     const token = generateToken(user);
 
@@ -464,6 +468,7 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 router.post("/google", async (req, res) => {
   try {
