@@ -1,13 +1,13 @@
-import React, { useState, useContext } from "react";
-import { useNavigate, Link } from "react-router-dom";
+'use client'
+
+import React, { useState, useContext, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import jwtDecode from "jwt-decode";
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -24,15 +24,17 @@ const Login = () => {
   const [messageKey, setMessageKey] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  // ------------------ Normal Email/Password Login ------------------
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const response = await axios.post(`${Backurl}/api/auth/google`, {
-        email,
-        password,
-      },{ withCredentials: true });
+      const response = await axios.post(
+        `${Backurl}/api/auth/login`, // <-- Correct login endpoint
+        { email, password },
+        { withCredentials: true }
+      );
 
       login(response.data.user, response.data.token);
       toast.success("Login successful!");
@@ -44,6 +46,7 @@ const Login = () => {
     }
   };
 
+  // ------------------ Google Login ------------------
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
@@ -67,6 +70,8 @@ const Login = () => {
       console.error("Google Login Error:", error);
     }
   };
+
+  // ------------------ Info Message from Redirect ------------------
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -98,17 +103,19 @@ const Login = () => {
           </button>
         </div>
       )}
+
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-violet-200 dark:from-gray-900 dark:to-gray-800 px-4">
-        <div className="max-w-md w-full  bg-white dark:bg-gray-900 p-8 mb-20 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
+        <div className="max-w-md w-full bg-white dark:bg-gray-900 p-8 mb-20 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Welcome Back👋
+              Welcome Back 👋
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mt-2">
               Please sign in to your account
             </p>
           </div>
 
+          {/* ------------------ Login Form ------------------ */}
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -135,7 +142,7 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full  px-4 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 pr-10"
+                  className="w-full px-4 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 pr-10"
                 />
                 <button
                   type="button"
@@ -146,10 +153,11 @@ const Login = () => {
                 </button>
               </div>
             </div>
+
             <div className="text-right text-sm mb-4">
               <Link
                 to="/forgot-password"
-                className="text-indigo-600 hover:underline text-sm font-medium  inline-block"
+                className="text-indigo-600 hover:underline text-sm font-medium inline-block"
               >
                 Forgot Password?
               </Link>
@@ -164,14 +172,14 @@ const Login = () => {
             </button>
           </form>
 
+          {/* ------------------ Divider ------------------ */}
           <div className="flex items-center my-6">
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
-            <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">
-              or
-            </span>
+            <span className="mx-4 text-sm text-gray-500 dark:text-gray-400">or</span>
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
           </div>
 
+          {/* ------------------ Google Login ------------------ */}
           <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={() => toast.error("Google Login Failed")}
@@ -182,6 +190,7 @@ const Login = () => {
             logo_alignment="center"
           />
 
+          {/* ------------------ Signup Link ------------------ */}
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?
             <Link
