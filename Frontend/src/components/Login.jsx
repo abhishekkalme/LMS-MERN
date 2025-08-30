@@ -24,28 +24,31 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   // ===== EMAIL/PASSWORD LOGIN =====
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+ // ===== EMAIL/PASSWORD LOGIN =====
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const response = await axios.post(
-        `${Backurl}/api/auth/login`,
-        { email, password },
-        { withCredentials: true }
-      );
+  try {
+    const response = await axios.post(
+      `${Backurl}/api/auth/login`,
+      { email, password },
+      { withCredentials: true }
+    );
 
-      // Only registered & verified users will reach here
-      login(response.data.user, response.data.token);
-      toast.success("Login successful!");
-      setTimeout(() => navigate("/"), 1000);
-    } catch (err) {
-      // Backend sends proper messages for unverified/unregistered/invalid credentials
-      toast.error(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Successful login: backend ensures user exists and is verified
+    login(response.data.user, response.data.token);
+    toast.success("Login successful!");
+    setTimeout(() => navigate("/"), 1000);
+  } catch (err) {
+    // Show exact backend message for unverified/unregistered/invalid credentials
+    const message = err.response?.data?.message || "Login failed";
+    toast.error(message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // ===== GOOGLE BUTTON (redirect unregistered users) =====
   const handleGoogleRedirect = () => {
