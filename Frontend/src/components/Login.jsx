@@ -7,7 +7,6 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import * as jwtDecode from "jwt-decode"; 
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -24,7 +23,7 @@ const Login = () => {
   const [messageKey, setMessageKey] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Email/Password Login
+  // ===== EMAIL/PASSWORD LOGIN =====
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -36,64 +35,25 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      if (!response.data.user) {
-        toast.error("You must register and verify your email first");
-        return;
-      }
-
+      // Only registered & verified users will reach here
       login(response.data.user, response.data.token);
       toast.success("Login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
+      // Backend sends proper messages for unverified/unregistered/invalid credentials
       toast.error(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
   };
 
-  // Google OAuth Login
-  const handleGoogleLogin = async (credentialResponse) => {
-    if (!credentialResponse?.credential) {
-      toast.error("Google login failed: no credential returned");
-      return;
-    }
-
-    let decoded;
-    try {
-      decoded = jwtDecode(credentialResponse.credential);
-    } catch (err) {
-      console.error("JWT Decode Error:", err);
-      toast.error("Google login failed: invalid token");
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        `${Backurl}/api/auth/google`,
-        { email: decoded.email },
-        { withCredentials: true }
-      );
-
-      login(response.data.user, response.data.token);
-      toast.success("Google login successful!");
-      setTimeout(() => navigate("/"), 1000);
-    } catch (error) {
-      console.error("Google Login Error:", error);
-
-      // Show backend message if available
-      const serverMessage = error.response?.data?.message;
-      if (serverMessage) {
-        toast.error(serverMessage);
-        if (error.response.status === 403) {
-          setTimeout(() => navigate("/register"), 1500);
-        }
-      } else {
-        toast.error("Google login failed");
-      }
-    }
+  // ===== GOOGLE BUTTON (redirect unregistered users) =====
+  const handleGoogleRedirect = () => {
+    toast.info("Please register first using email/password");
+    setTimeout(() => navigate("/register"), 1000);
   };
 
-  // Info message from redirects
+  // ===== Info message from redirects =====
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -197,8 +157,8 @@ const Login = () => {
           </div>
 
           <GoogleLogin
-            onSuccess={handleGoogleLogin}
-            onError={() => toast.error("Google Login Failed")}
+            onSuccess={handleGoogleRedirect}
+            onError={handleGoogleRedirect}
             theme="outline"
             size="large"
             type="standard"
