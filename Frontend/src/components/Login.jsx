@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import * as jwtDecode from "jwt-decode";
+import * as jwtDecode from "jwt-decode"; // Netlify-compatible import
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -24,7 +24,7 @@ const Login = () => {
   const [messageKey, setMessageKey] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Email/Password Login
+  // ===== EMAIL/PASSWORD LOGIN =====
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -51,7 +51,7 @@ const Login = () => {
     }
   };
 
-  // Google OAuth Login
+  // ===== GOOGLE LOGIN =====
   const handleGoogleLogin = async (credentialResponse) => {
     if (!credentialResponse?.credential) {
       toast.error("Google login failed: no credential returned");
@@ -60,7 +60,8 @@ const Login = () => {
 
     let decoded;
     try {
-      decoded = jwtDecode(credentialResponse.credential);
+      // IMPORTANT: use .default when importing * as jwtDecode
+      decoded = jwtDecode.default(credentialResponse.credential);
     } catch (err) {
       console.error("JWT Decode Error:", err);
       toast.error("Google login failed: invalid token");
@@ -80,21 +81,20 @@ const Login = () => {
     } catch (error) {
       console.error("Google Login Error:", error);
 
+      // Handle unregistered users
       const serverMessage = error.response?.data?.message;
       if (serverMessage) {
         toast.error(serverMessage);
         if (error.response.status === 403) {
-          // Redirect unregistered Google users to register
           setTimeout(() => navigate("/register"), 1500);
         }
       } else {
-        toast.error("Google login failed. Please register first.");
-        setTimeout(() => navigate("/register"), 1500);
+        toast.error("Google login failed");
       }
     }
   };
 
-  // Info message from redirects
+  // ===== INFO MESSAGE FROM REDIRECTS =====
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -199,10 +199,7 @@ const Login = () => {
 
           <GoogleLogin
             onSuccess={handleGoogleLogin}
-            onError={() => {
-              toast.error("Google login failed. Please register first.");
-              setTimeout(() => navigate("/register"), 1500);
-            }}
+            onError={() => toast.error("Google Login Failed")}
             theme="outline"
             size="large"
             type="standard"
