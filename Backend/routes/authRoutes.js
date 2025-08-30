@@ -482,30 +482,35 @@ router.post("/google", async (req, res) => {
   try {
     const { email } = req.body;
 
-    // Only allow login if user already exists in User collection
+    // Check if user exists in the database
     const user = await User.findOne({ email });
+
     if (!user) {
+      // If user doesn't exist, reject the login attempt
       return res.status(403).json({
-        message: "You must register first using email/OTP",
+        message: "This Google account is not registered. Please register first.",
       });
     }
 
+    // If user exists, generate a JWT token
     const token = generateToken(user);
 
-    res.status(200).json({
+    // Return user info and token
+    return res.status(200).json({
       token,
       user: {
         name: user.name,
         email: user.email,
         role: user.role,
-        avatar: user.avatar,
+        avatar: user.avatar || null,
       },
     });
   } catch (err) {
     console.error("Google Login Error:", err);
-    res.status(500).json({ message: "Google Sign-In failed" });
+    return res.status(500).json({ message: "Google Sign-In failed due to server error" });
   }
 });
+
 
 router.get("/me", async (req, res) => {
   try {
