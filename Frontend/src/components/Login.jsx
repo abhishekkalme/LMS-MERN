@@ -52,35 +52,43 @@ const Login = () => {
     }
   };
 
-  // Google OAuth Login
-  const handleGoogleLogin = async (credentialResponse) => {
-    try {
-      const decoded = jwtDecode(credentialResponse.credential);
+// Google OAuth Login
+const handleGoogleLogin = async (credentialResponse) => {
+  try {
+    const decoded = jwtDecode(credentialResponse.credential);
 
-      const response = await axios.post(
-        `${Backurl}/api/auth/google`,
-        {
-          email: decoded.email,
-        },
-        { withCredentials: true }
+    const response = await axios.post(
+      `${Backurl}/api/auth/google`,
+      { email: decoded.email },
+      { withCredentials: true }
+    );
+
+    // Only login if user exists in backend
+    if (!response.data.user) {
+      toast.error(
+        "You must register first using email/password before using Google login"
       );
+      return;
+    }
 
-      // Only login if user exists in backend
-      if (!response.data.user) {
-        toast.error(
-          "You must register first using email/password before using Google login"
-        );
-        return;
-      }
+    login(response.data.user, response.data.token);
+    toast.success("Google login successful!");
+    setTimeout(() => navigate("/"), 1000);
+  } catch (error) {
+    console.error("Google Login Error:", error);
 
-      login(response.data.user, response.data.token);
-      toast.success("Google login successful!");
-      setTimeout(() => navigate("/"), 1000);
-    } catch (error) {
-      console.error("Google Login Error:", error);
+    if (error.response?.status === 403) {
+      toast.error(
+        "This Google account is not registered. Please register first."
+      );
+    } else if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
+    } else {
       toast.error("Google login failed");
     }
-  };
+  }
+};
+
 
   // Info message from redirects
   useEffect(() => {
