@@ -4,8 +4,10 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import { Eye, EyeOff, Google } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 
@@ -21,9 +23,9 @@ const Login = () => {
   const [messageKey, setMessageKey] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // ===== Unified error/info message handler =====
-  const showMessage = (msg, duration = 4000) => {
-    setInfoMessage(msg);
+  // ===== Helper to display inline message =====
+  const showMessage = (message, duration = 4000) => {
+    setInfoMessage(message);
     setTimeout(() => setInfoMessage(null), duration);
   };
 
@@ -40,7 +42,7 @@ const Login = () => {
       );
 
       login(response.data.user, response.data.token);
-      showMessage("Login successful!", 2000);
+      toast.success("Login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
@@ -57,7 +59,6 @@ const Login = () => {
       return;
     }
 
-    setLoading(true);
     try {
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
@@ -66,21 +67,19 @@ const Login = () => {
       );
 
       login(response.data.user, response.data.token);
-      showMessage("Google login successful!", 2000);
+      toast.success("Google login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
-      const serverMessage = err.response?.data?.message || "Google login failed";
-      showMessage(serverMessage);
+      const msg = err.response?.data?.message || "Google login failed";
+      showMessage(msg);
 
-      if (err.response?.status === 403 || serverMessage.includes("register")) {
+      if (err.response?.status === 403 || msg?.includes("register")) {
         setTimeout(() => navigate("/register"), 1500);
       }
-    } finally {
-      setLoading(false);
     }
   };
 
-  // ===== Redirect messages =====
+  // ===== Info message from redirects =====
   useEffect(() => {
     const { message } = location.state || {};
     const queryParams = new URLSearchParams(location.search);
@@ -181,22 +180,14 @@ const Login = () => {
           <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
         </div>
 
-        {/* ===== Custom Google Button ===== */}
-        <button
-          onClick={() => document.getElementById("google-login-btn")?.click()}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 font-medium"
-        >
-          <Google size={18} /> Sign in with Google
-        </button>
-
         <GoogleLogin
           onSuccess={handleGoogleLogin}
           onError={() => showMessage("Google login failed")}
-          id="google-login-btn"
-          width={0}
-          height={0}
-          style={{ display: "none" }}
+          theme="filled_blue"       
+  size="medium"          
+  type="icon"               
+  shape="pill"              
+  logo_alignment="left" 
         />
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
