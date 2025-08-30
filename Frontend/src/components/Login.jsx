@@ -7,7 +7,6 @@ import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
-import * as jwtDecode from "jwt-decode"; 
 import { Eye, EyeOff } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
@@ -50,7 +49,6 @@ const Login = () => {
       setLoading(false);
     }
   };
-
 
   // Info message from redirects
   useEffect(() => {
@@ -155,21 +153,22 @@ const Login = () => {
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600" />
           </div>
 
-        <GoogleLogin
-  onSuccess={() => {
-    toast.info("Please register first using email/password");
-    setTimeout(() => navigate("/register"), 1000); // navigate after toast
-  }}
-  onError={() => {
-    toast.error("Google login is not available. Please register first.");
-    setTimeout(() => navigate("/register"), 1000);
-  }}
-  theme="outline"
-  size="large"
-  type="standard"
-  shape="circle"
-  logo_alignment="center"
-/>
+          {/* Google login button now redirects to /register */}
+          <GoogleLogin
+            onSuccess={() => {
+              toast.info("Please register first using email/password");
+              setTimeout(() => navigate("/register"), 1000);
+            }}
+            onError={() => {
+              toast.error("Google login is not available. Please register first.");
+              setTimeout(() => navigate("/register"), 1000);
+            }}
+            theme="outline"
+            size="large"
+            type="standard"
+            shape="circle"
+            logo_alignment="center"
+          />
 
           <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Don't have an account?
