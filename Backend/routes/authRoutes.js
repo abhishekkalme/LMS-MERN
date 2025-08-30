@@ -478,41 +478,54 @@ router.post("/login", async (req, res) => {
 
 
 // ===== GOOGLE LOGIN =====
+
+import { OAuth2Client } from "google-auth-library";
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 router.post("/google", async (req, res) => {
   try {
-    const { email, name, picture } = req.body;
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: "Google token is required" });
+    }
+
+    // Verify token with Google
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const name = payload.name;
+    const picture = payload.picture;
 
     if (!email) {
-      return res.status(400).json({ message: "Email is required for Google login" });
+      return res.status(400).json({ message: "Google login failed: email not found" });
     }
 
-    // Check if user exists
+    // Check if user exists in DB
     const user = await User.findOne({ email });
-
     if (!user) {
-      // If user is not registered, reject login
-      return res.status(403).json({
-        message: "This Google account is not registered. Please register first.",
-      });
+      return res.status(403).json({ message: "You are not registered. Please sign up first." });
     }
 
-    // User exists, generate token
-    const token = generateToken(user);
+    // Generate JWT token
+    const jwtToken = generateToken(user);
 
     return res.status(200).json({
-      token,
+      token: jwtToken,
       user: {
         name: user.name,
         email: user.email,
         role: user.role,
-        avatar: user.avatar || null,
+        avatar: user.avatar || picture || null,
       },
     });
   } catch (err) {
     console.error("Google Login Error:", err);
-    return res.status(500).json({
-      message: "Google Sign-In failed due to server error",
-    });
+    return res.status(500).json({ message: "Google login failed due to server error" });
   }
 });
 
