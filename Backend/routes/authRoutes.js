@@ -481,7 +481,6 @@ router.post("/login", async (req, res) => {
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// ===== GOOGLE LOGIN (REGISTERED USERS ONLY) =====
 router.post("/google", async (req, res) => {
   try {
     const { token } = req.body;
@@ -490,7 +489,7 @@ router.post("/google", async (req, res) => {
       return res.status(400).json({ message: "Google token is required" });
     }
 
-    // Verify the Google ID token
+    // Verify token with Google
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -502,17 +501,13 @@ router.post("/google", async (req, res) => {
     const picture = payload.picture;
 
     if (!email) {
-      return res
-        .status(400)
-        .json({ message: "Google login failed: email not found" });
+      return res.status(400).json({ message: "Google login failed: email not found" });
     }
 
     // Check if user exists in DB
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(403)
-        .json({ message: "You are not registered. Please sign up first." });
+      return res.status(403).json({ message: "You are not registered. Please sign up first." });
     }
 
     // Generate JWT token
@@ -529,12 +524,9 @@ router.post("/google", async (req, res) => {
     });
   } catch (err) {
     console.error("Google Login Error:", err);
-    return res.status(500).json({
-      message: "Google login failed due to server error",
-    });
+    return res.status(500).json({ message: "Google login failed due to server error" });
   }
 });
-
 
 
 
