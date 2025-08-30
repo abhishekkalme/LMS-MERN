@@ -18,14 +18,15 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [infoMessage, setInfoMessage] = useState(null);
-  const [messageKey, setMessageKey] = useState(null);
+  const [infoMessage, setInfoMessage] = useState(null); // redirect info
+  const [loginMessage, setLoginMessage] = useState(null); // login error/warning
   const [showPassword, setShowPassword] = useState(false);
 
   // ===== EMAIL/PASSWORD LOGIN =====
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setLoginMessage(null); // clear previous messages
 
     try {
       const response = await axios.post(
@@ -39,8 +40,9 @@ const Login = () => {
       toast.success("Login successful!");
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {
-      // Show exact backend message for unverified/unregistered/invalid credentials
+      // Show exact backend message inline
       const message = err.response?.data?.message || "Login failed";
+      setLoginMessage(message);
       toast.error(message);
     } finally {
       setLoading(false);
@@ -54,17 +56,17 @@ const Login = () => {
     const reason = queryParams.get("reason");
     const triggerTime = queryParams.get("t");
 
-    if (message && reason === "unauthorized" && triggerTime !== messageKey) {
+    if (message && reason === "unauthorized") {
       setInfoMessage(message);
-      setMessageKey(triggerTime);
 
       const timer = setTimeout(() => setInfoMessage(null), 3000);
       return () => clearTimeout(timer);
     }
-  }, [location, messageKey]);
+  }, [location]);
 
   return (
     <>
+      {/* Redirect info message */}
       {infoMessage && (
         <div className="fixed mt-3 left-1/2 transform -translate-x-1/2 z-50 px-4 py-3 rounded-md bg-yellow-100 border border-yellow-400 text-yellow-800 text-sm font-medium shadow-md flex items-center justify-between gap-4 max-w-md w-[90%]">
           <span className="flex-1">{infoMessage}</span>
@@ -79,7 +81,7 @@ const Login = () => {
 
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-violet-200 dark:from-gray-900 dark:to-gray-800 px-4">
         <div className="max-w-md w-full bg-white dark:bg-gray-900 p-8 mb-20 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700">
-          <div className="text-center mb-8">
+          <div className="text-center mb-4">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               Welcome Back 👋
             </h2>
@@ -87,6 +89,13 @@ const Login = () => {
               Please sign in to your account
             </p>
           </div>
+
+          {/* Inline login message */}
+          {loginMessage && (
+            <div className="mb-4 px-4 py-2 rounded-md bg-red-100 border border-red-400 text-red-700 text-sm">
+              {loginMessage}
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
