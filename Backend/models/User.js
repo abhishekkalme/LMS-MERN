@@ -2,9 +2,15 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    name: String,
-    email: { type: String, unique: true },
-    password: String,
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 3,
+      maxlength: 30, 
+    },
+    email: { type: String, unique: true, required: true, trim: true },
+    password: { type: String },
     googleId: String,
     avatar: String,
     isGoogle: { type: Boolean, default: false },
@@ -17,11 +23,10 @@ const userSchema = new mongoose.Schema(
     otp: String,
     otpExpires: Date,
     resetToken: String,
-resetTokenExpires: Date,
-
+    resetTokenExpires: Date,
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 
