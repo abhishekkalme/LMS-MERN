@@ -179,7 +179,7 @@ const Login = () => {
         </div>
 
         <GoogleLogin
-          onSuccess={handleGoogleLogin}
+          onSuccess={handleGoogleSuccess}
           onError={() => showMessage("Google login failed")}
           theme="outline "       
   size="medium"          
