@@ -25,17 +25,17 @@ const Register = () => {
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const getPasswordStrength = (pwd) => {
-    if (pwd.length < 6) return "Weak";
-    if (
-      pwd.match(/[a-z]/) &&
-      pwd.match(/[A-Z]/) &&
-      pwd.match(/[0-9]/) &&
-      pwd.match(/[@$!%*?&]/) &&
-      pwd.length >= 8
-    )
-      return "Strong";
-    return "Medium";
-  };
+  if (pwd.length < 8) return "Weak";
+
+  const hasLower = /[a-z]/.test(pwd);
+  const hasUpper = /[A-Z]/.test(pwd);
+  const hasNumber = /[0-9]/.test(pwd);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>_\-+=~`[\]\\;'\\/]/.test(pwd);
+
+  if (hasLower && hasUpper && hasNumber && hasSpecial) return "Strong";
+  return "Medium";
+};
+
 
   const handlePasswordChange = (pwd) => {
     setPassword(pwd);
