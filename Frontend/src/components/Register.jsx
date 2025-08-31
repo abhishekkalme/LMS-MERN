@@ -17,6 +17,7 @@ const Register = () => {
   const [passwordStrength, setPasswordStrength] = useState("");
   const [loading, setLoading] = useState(false);
   const MAX_NAME_LENGTH = 30;
+  const MIN_NAME_LENGTH = 3;
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -140,6 +141,12 @@ const Register = () => {
             <p className="text-sm text-gray-500">
       {name.length}/{MAX_NAME_LENGTH} characters
     </p>
+            {/* Validation message */}
+      {name.length > 0 && name.length < MIN_NAME_LENGTH && (
+        <p className="text-sm text-red-500">
+          Name must be at least {MIN_NAME_LENGTH} characters long.
+        </p>
+      )}
           </div>
 
           {/* EMAIL */}
