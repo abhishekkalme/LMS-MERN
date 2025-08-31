@@ -285,23 +285,41 @@ router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    // 🔹 Backend validation
+    // 🔹 Name validation
     if (!name || name.length > 30) {
       return res.status(400).json({ message: "Name must be under 30 characters" });
     }
+
+    // 🔹 Email validation
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
+
+    // 🔹 Password validation (NIST-style)
     if (!password || password.length < 8) {
-      return res.status(400).json({ message: "Password must be at least 8 characters" });
+      return res.status(400).json({ message: "Password must be at least 8 characters long" });
+    }
+    if (/^\s+$/.test(password)) {
+      return res.status(400).json({ message: "Password cannot be only spaces" });
     }
 
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: "User already exists" });
+    // Optional: Block common passwords
+    const commonPasswords = ["password", "12345678", "qwerty", "letmein", "admin"];
+    if (commonPasswords.includes(password.toLowerCase())) {
+      return res.status(400).json({ message: "Password is too common. Choose a stronger one." });
+    }
 
+    // 🔹 Check if user already exists
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    // 🔹 Generate OTP & hash password
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 🔹 Save pending user
     await PendingUser.findOneAndUpdate(
       { email },
       {
@@ -317,6 +335,7 @@ router.post("/register", async (req, res) => {
       { upsert: true, new: true }
     );
 
+    // 🔹 Send verification email
     await sendMail({
       to: email,
       subject: "Verify your email - JIT LMS",
