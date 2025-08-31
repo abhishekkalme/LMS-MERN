@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
-
+import { jwtDecode } from "jwt-decode";
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
@@ -72,9 +72,11 @@ const Login = () => {
       toast.success("Google account logged in!");
       setTimeout(() => navigate("/"), 1000);
     } catch (error) {
-      toast.error("Google Sign-Up failed.");
-      console.error("Google Sign-Up Error:", error);
-    }
+  const msg = error.response?.data?.message || error.message || "Google Sign-Up failed.";
+  toast.error(msg);
+  console.error("Google Sign-Up Error:", error);
+}
+}
   };
 
   // ===== Info message from redirects =====
@@ -179,14 +181,15 @@ const Login = () => {
         </div>
 
         <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => showMessage("Google login failed")}
-          theme="outline "       
-  size="medium"          
-  type="standard "               
-  shape="pill"              
-  logo_alignment="center" 
-        />
+  onSuccess={handleGoogleSuccess}
+  onError={() => toast.error("Google login failed")}
+  theme="outline"
+  size="medium"
+  type="standard"
+  shape="pill"
+  logo_alignment="center"
+/>
+
 
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Don't have an account?
