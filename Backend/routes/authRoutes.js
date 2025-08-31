@@ -283,10 +283,21 @@ const generateToken = (user) => {
 
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
+
   try {
+    // 🔹 Backend validation
+    if (!name || name.length > 30) {
+      return res.status(400).json({ message: "Name must be under 30 characters" });
+    }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
     const existing = await User.findOne({ email });
-    if (existing)
-      return res.status(400).json({ message: "User already exists" });
+    if (existing) return res.status(400).json({ message: "User already exists" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -319,6 +330,7 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
