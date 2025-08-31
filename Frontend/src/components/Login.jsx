@@ -53,29 +53,27 @@ const Login = () => {
   };
 
   // ===== GOOGLE LOGIN =====
-  const handleGoogleLogin = async (credentialResponse) => {
-    if (!credentialResponse?.credential) {
-      showMessage("Google login failed: no credential returned");
-      return;
-    }
-
+   const handleGoogleSuccess = async (credentialResponse) => {
     try {
+      const decoded = jwtDecode(credentialResponse.credential);
+
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
-        { token: credentialResponse.credential },
+        {
+          name: decoded.name,
+          email: decoded.email,
+          googleId: decoded.sub,
+          avatar: decoded.picture,
+        },
         { withCredentials: true }
       );
 
       login(response.data.user, response.data.token);
-      toast.success("Google login successful!");
+      toast.success("Google account logged in!");
       setTimeout(() => navigate("/"), 1000);
-    } catch (err) {
-      const msg = err.response?.data?.message || "Google login failed";
-      showMessage(msg);
-
-      if (err.response?.status === 403 || msg?.includes("register")) {
-        setTimeout(() => navigate("/register"), 1500);
-      }
+    } catch (error) {
+      toast.error("Google Sign-Up failed.");
+      console.error("Google Sign-Up Error:", error);
     }
   };
 
