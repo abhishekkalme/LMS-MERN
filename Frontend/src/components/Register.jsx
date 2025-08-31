@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../context/AuthContext";
+import { Eye, EyeOff } from "lucide-react"
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 
@@ -164,31 +165,41 @@ const Register = () => {
             />
           </div>
 
-          {/* PASSWORD */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => handlePasswordChange(e.target.value)}
-              required
-              placeholder="••••••••"
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
-            />
-            <p
-              className={`text-sm mt-1 font-medium ${
-                passwordStrength === "Strong"
-                  ? "text-green-600"
-                  : passwordStrength === "Medium"
-                  ? "text-yellow-500"
-                  : "text-red-500"
-              }`}
-            >
-              Strength: {passwordStrength}
-            </p>
-          </div>
+         {/* PASSWORD */}
+<div>
+  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+    Password
+  </label>
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      value={password}
+      onChange={(e) => handlePasswordChange(e.target.value)}
+      required
+      placeholder="••••••••"
+      className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white pr-10"
+    />
+    <button
+      type="button"
+      onClick={() => setShowPassword(prev => !prev)}
+      className="absolute right-3 top-2.5 text-gray-500 hover:text-indigo-600"
+    >
+      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+    </button>
+  </div>
+  <p
+    className={`text-sm mt-1 font-medium ${
+      passwordStrength === "Strong"
+        ? "text-green-600"
+        : passwordStrength === "Medium"
+        ? "text-yellow-500"
+        : "text-red-500"
+    }`}
+  >
+    Strength: {passwordStrength}
+  </p>
+</div>
+
 
           {/* CONFIRM PASSWORD */}
           <div>
