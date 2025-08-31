@@ -53,12 +53,10 @@ const getPasswordStrength = (pwd) => {
       return;
     }
 
-    if (passwordStrength !== "Strong") {
-      toast.error(
-        "Password must be at least 8 chars, include uppercase, lowercase, number & special character."
-      );
-      return;
-    }
+     if (password.length < 8) {
+    toast.error("Password must be at least 8 characters long.");
+    return;
+  }
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match.");
@@ -184,16 +182,19 @@ const getPasswordStrength = (pwd) => {
     </button>
   </div>
   <p
-    className={`text-sm mt-1 font-medium ${
-      passwordStrength === "Strong"
-        ? "text-green-600"
-        : passwordStrength === "Medium"
-        ? "text-yellow-500"
-        : "text-red-500"
-    }`}
-  >
-    Strength: {passwordStrength}
-  </p>
+  className={`text-sm mt-1 font-medium ${
+    passwordStrength === "Very Strong"
+      ? "text-indigo-600"
+      : passwordStrength === "Strong"
+      ? "text-green-600"
+      : passwordStrength === "Medium"
+      ? "text-yellow-500"
+      : "text-red-500"
+  }`}
+>
+  Strength: {passwordStrength}
+</p>
+
 </div>
 
 
