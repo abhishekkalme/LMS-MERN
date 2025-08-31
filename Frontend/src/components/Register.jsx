@@ -17,6 +17,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordStrength, setPasswordStrength] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const MAX_NAME_LENGTH = 30;
   const MIN_NAME_LENGTH = 3;
   const { login } = useContext(AuthContext);
