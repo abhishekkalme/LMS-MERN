@@ -16,9 +16,12 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordStrength, setPasswordStrength] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const MAX_NAME_LENGTH = 30;
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // ==== Validation Functions ====
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const getPasswordStrength = (pwd) => {
     if (pwd.length < 6) return "Weak";
@@ -26,6 +29,7 @@ const Register = () => {
       pwd.match(/[a-z]/) &&
       pwd.match(/[A-Z]/) &&
       pwd.match(/[0-9]/) &&
+      pwd.match(/[@$!%*?&]/) &&
       pwd.length >= 8
     )
       return "Strong";
@@ -40,6 +44,24 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
 
+    // === Client-side Validations ===
+    if (name.trim().length < 3) {
+      toast.error("Name must be at least 3 characters.");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      toast.error("Enter a valid email address.");
+      return;
+    }
+
+    if (passwordStrength !== "Strong") {
+      toast.error(
+        "Password must be at least 8 chars, include uppercase, lowercase, number & special character."
+      );
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("Passwords do not match.");
       return;
@@ -47,12 +69,11 @@ const Register = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post(`${Backurl}/api/auth/register`, {
-        name,
-        email,
-        password,
-      },
-      { withCredentials: true });
+      const res = await axios.post(
+        `${Backurl}/api/auth/register`,
+        { name, email, password },
+        { withCredentials: true }
+      );
 
       toast.success("OTP sent to your email");
       navigate("/verify-otp", { state: { email } });
@@ -63,17 +84,21 @@ const Register = () => {
     }
   };
 
+  // === Google Register ===
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
 
-      const response = await axios.post(`${Backurl}/api/auth/google`, {
-        name: decoded.name,
-        email: decoded.email,
-        googleId: decoded.sub,
-        avatar: decoded.picture,
-      },
-      { withCredentials: true });
+      const response = await axios.post(
+        `${Backurl}/api/auth/google`,
+        {
+          name: decoded.name,
+          email: decoded.email,
+          googleId: decoded.sub,
+          avatar: decoded.picture,
+        },
+        { withCredentials: true }
+      );
 
       login(response.data.user, response.data.token);
       toast.success("Google account registered & logged in!");
@@ -98,20 +123,26 @@ const Register = () => {
         </div>
 
         <form onSubmit={handleRegister} className="space-y-5">
+          {/* NAME */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Full Name
             </label>
             <input
               type="text"
-              placeholder="John Doe"
+              placeholder="Enter your name"
               value={name}
+              maxLength={MAX_NAME_LENGTH}
               onChange={(e) => setName(e.target.value)}
               required
               className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
             />
+            <p className="text-sm text-gray-500">
+      {name.length}/{MAX_NAME_LENGTH} characters
+    </p>
           </div>
 
+          {/* EMAIL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Email Address
@@ -126,6 +157,7 @@ const Register = () => {
             />
           </div>
 
+          {/* PASSWORD */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Password
@@ -151,6 +183,7 @@ const Register = () => {
             </p>
           </div>
 
+          {/* CONFIRM PASSWORD */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Confirm Password
@@ -174,12 +207,14 @@ const Register = () => {
           </button>
         </form>
 
+        {/* OR LINE */}
         <div className="my-6 flex items-center justify-center">
           <div className="border-t border-gray-300 dark:border-gray-600 w-full"></div>
           <span className="px-2 text-gray-500 dark:text-gray-400">or</span>
           <div className="border-t border-gray-300 dark:border-gray-600 w-full"></div>
         </div>
 
+        {/* GOOGLE LOGIN */}
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={() => toast.error("Google login failed")}
@@ -190,6 +225,7 @@ const Register = () => {
           logo_alignment="center"
         />
 
+        {/* LOGIN LINK */}
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?
           <Link
