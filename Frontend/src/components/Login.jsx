@@ -53,7 +53,7 @@ const Login = () => {
   };
 
   // ===== GOOGLE LOGIN =====
-   const handleGoogleSuccess = async (credentialResponse) => {
+    const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
 
@@ -72,12 +72,15 @@ const Login = () => {
       toast.success("Google account logged in!");
       setTimeout(() => navigate("/"), 1000);
     } catch (error) {
-  const msg = error.response?.data?.message || error.message || "Google Sign-Up failed.";
-  toast.error(msg);
-  console.error("Google Sign-Up Error:", error);
-}
-}
+      const msg =
+        error.response?.data?.message ||
+        error.message ||
+        "Google Sign-Up failed.";
+      toast.error(msg);
+      console.error("Google Sign-Up Error:", error);
+    }
   };
+
 
   // ===== Info message from redirects =====
   useEffect(() => {
