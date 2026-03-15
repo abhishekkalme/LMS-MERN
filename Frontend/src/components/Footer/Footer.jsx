@@ -81,6 +81,7 @@ function Footer() {
                 { name: "Syllabus", path: "/syllabus" },
                 { name: "Notes", path: "/notes" },
                 { name: "About Us", path: "/about" },
+                { name: "Contact Us", path: "/contact-us" },
               ].map((link) => (
                 <li key={link.name}>
                   <NavLink

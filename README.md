@@ -1,7 +1,7 @@
-# 📒JIT Learning - Full-Stack Learning Management System 
+# 📒Learnify - A Full-Stack Learning Management System 
 
 
-<p align="center"><em>LMS-MERN: A full-stack Learning Management System with Authentication, Role-based Access, Notes Management, Cloudinary Integration, and Syllabus Uploads.</em></p>
+<p align="center"><em>Learnify: A full-stack Learning Management System with Authentication, Role-based Access, Notes Management, Cloudinary Integration, and Syllabus Uploads.</em></p>
 
 
 
@@ -15,7 +15,6 @@
 [![React](https://img.shields.io/badge/React-19.0.0-61DAFB?logo=react&logoColor)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-4.0-646CFF?logo=vite&logoColor)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1-38B2AC?logo=tailwindcss&logoColor)](https://tailwindcss.com/)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/9d6e7c76-d24b-4e9b-a489-43f5b0ca640c/deploy-status)](https://app.netlify.com/sites/lms-learning-management-system/deploys)
 [![Node.js](https://img.shields.io/badge/Node.js-v20.0.0-green?logo=node.js&logoColor)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-4.18.2-black?logo=express&logoColor)](https://expressjs.com/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-v6.0.0-47A248?logo=mongodb&logoColor)](https://mongodb.com/)
@@ -28,7 +27,7 @@
 
 <img src="./Screenshot/Screenshot.png" alt="App Screenshot" width="100%"/>
 
-💣 **Live Demo**: [https://lms-learning-management-system.netlify.app/](https://lms-learning-management-system.netlify.app/)
+💣 **Live Demo**: [https://mylearnify.vercel.app](https://mylearnify.vercel.app)
 
 ---
 ## 🔗 Quick Links
@@ -53,11 +52,11 @@
 
 ## 📍 Overview
 
-**LMS-MERN** is a full-featured Learning Management System for students and educators. It supports:
+**Learnify** is a full-featured Learning Management System for students and educators. It supports:
 
-- Role-based access (Student, Teacher, Admin)
+- Role-based access (Student, Admin)
 - Secure authentication (JWT, refresh tokens, OTP)
-- Notes upload & approval
+- Notes upload
 - Dynamic syllabus filters
 - PDF previews with Cloudinary integration
 - Dark/light theme support
@@ -68,7 +67,7 @@
 
 - 👤 **User Authentication**: Secure login/signup with JWT, OTP verification, and Google OAuth.
 - 🛡️ **Robust Security**: Built-in API rate limiting, Helmet security headers, and secure server-side token validation.
-- 🧑‍🏫 **Role Management**: Admin, Teacher, Student support.
+- 🧑‍🏫 **Role Management**: Admin, Student support.
 - 🗂 **Notes Uploading & Downloading** with unit structure.
 - 📚 **Syllabus Filters**: Based on branch, year, semester.
 - 🖼 **PDF Preview Modal** (Cloudinary-hosted)

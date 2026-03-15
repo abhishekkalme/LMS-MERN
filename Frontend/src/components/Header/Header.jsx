@@ -114,7 +114,7 @@ const Header = () => {
     { name: "Syllabus", path: "/syllabus" },
     { name: "TimeTable", path: "/timetable" },
     { name: "About", path: "/about" },
-    { name: "Contact", path: "/contactus" },
+    { name: "Contact", path: "/contact-us" },
   ];
 
   const [showMoreMenu, setShowMoreMenu] = useState(false);
