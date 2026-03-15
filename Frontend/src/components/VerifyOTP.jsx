@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast from "react-hot-toast";
+import { CheckCircle2 } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 
@@ -55,7 +55,11 @@ const VerifyOTP = () => {
         setBlockedUntil(null);
         setResendCount(0);
         setOtpDigits(["", "", "", "", "", ""]);
-        toast.info("✅ You are now unblocked. Please try again.");
+        toast.info(
+          <span className="flex items-center">
+            <CheckCircle2 size={16} className="mr-1" /> You are now unblocked. Please try again.
+          </span>
+        );
         setTimeout(() => {
           navigate("/register");
         }, 1500);
@@ -148,7 +152,7 @@ const VerifyOTP = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-100 to-violet-200 dark:from-gray-900 dark:to-gray-800 px-3">
-      <ToastContainer position="top-center" />
+
       <div className="max-w-md w-full bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 animate-fade-in mb-44">
         <h2 className="text-center text-2xl font-bold text-gray-800 dark:text-white mb-6">
           Email Verification

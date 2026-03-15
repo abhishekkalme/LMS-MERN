@@ -66,13 +66,15 @@
 
 ## 👾 Features
 
-- 👤 **User Authentication**: Secure login/signup with JWT, OTP verification.
+- 👤 **User Authentication**: Secure login/signup with JWT, OTP verification, and Google OAuth.
+- 🛡️ **Robust Security**: Built-in API rate limiting, Helmet security headers, and secure server-side token validation.
 - 🧑‍🏫 **Role Management**: Admin, Teacher, Student support.
 - 🗂 **Notes Uploading & Downloading** with unit structure.
 - 📚 **Syllabus Filters**: Based on branch, year, semester.
 - 🖼 **PDF Preview Modal** (Cloudinary-hosted)
+- 🤖 **AI Assistant**: Built-in Gemini AI chatbot for academic assistance.
 - 🔒 **Protected Routes** with refresh token auto-renewal.
-- ☁️ **Cloudinary** structured uploads.
+- ☁️ **Cloudinary** structured secure uploads.
 
 ---
 
@@ -82,11 +84,12 @@
 | Layer         | Tech Used                         |
 |---------------|-----------------------------------|
 | Frontend      | React.js + Vite, Tailwind CSS     |
-| Backend       | Node.js, Express.js               |
+| Backend       | Node.js, Express.js, Helmet       |
 | Database      | MongoDB + Mongoose                |
-| Auth          | JWT (Access + Refresh) + Cookies  |
+| Auth          | JWT, Google OAuth, Rate Limiting  |
 | Cloud Storage | Cloudinary SDK                    |
-| Email         | Gmail for OTP mails  |
+| AI            | Google Gemini API                 |
+| Email         | Gmail for OTP mails               |
 
 ## 📁 Project Structure
 
@@ -175,17 +178,13 @@ Run the test suite using the following command:
 
 ## 📌 Project Roadmap
 
-- Setup Authentication (JWT + OTP + Email)
-
-- PDF Uploading (Cloudinary with folder structure)
-
-- Admin Approval + Feedback
-
-- Role-based UI rendering
-
-- AI-based note summaries (Upcoming 🚀)
-
-- Download Analytics Dashboard
+- [x] Setup Authentication (JWT + OTP + Email)
+- [x] PDF Uploading (Cloudinary with folder structure)
+- [x] Admin Approval + Feedback
+- [x] Role-based UI rendering
+- [x] AI Chatbot Integration (Gemini AI)
+- [ ] Automated Note Summaries
+- [ ] Download Analytics Dashboard
 
 
 ---
@@ -248,7 +247,7 @@ Run the test suite using the following command:
 
 ## 🎗 License
 
-This project is protected under the [SELECT-A-LICENSE](https://github.com/abhishekkalme/LMS-MERN?tab=MIT-1-ov-file#) License. For more details, refer to the [LICENSE](https://github.com/abhishekkalme/LMS-MERN?tab=MIT-1-ov-file#) file.
+This project is protected under the [MIT License](https://github.com/abhishekkalme/LMS-MERN/blob/main/LICENSE). For more details, refer to the [LICENSE](https://github.com/abhishekkalme/LMS-MERN/blob/main/LICENSE) file.
 
 ---
 

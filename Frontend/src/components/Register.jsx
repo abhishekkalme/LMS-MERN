@@ -1,12 +1,13 @@
 import React, { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import toast from "react-hot-toast";
+
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "../context/AuthContext";
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 
@@ -26,13 +27,12 @@ const Register = () => {
   // ==== Validation Functions ====
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-const getPasswordStrength = (pwd) => {
-  if (pwd.length < 8) return "Weak";        
-  if (pwd.length < 12) return "Medium";      
-  if (pwd.length < 16) return "Strong";       
-  return "Very Strong";                       
-};
-
+  const getPasswordStrength = (pwd) => {
+    if (pwd.length < 8) return "Weak";
+    if (pwd.length < 12) return "Medium";
+    if (pwd.length < 16) return "Strong";
+    return "Very Strong";
+  };
 
   const handlePasswordChange = (pwd) => {
     setPassword(pwd);
@@ -53,10 +53,10 @@ const getPasswordStrength = (pwd) => {
       return;
     }
 
-     if (password.length < 8) {
-    toast.error("Password must be at least 8 characters long.");
-    return;
-  }
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match.");
@@ -83,15 +83,10 @@ const getPasswordStrength = (pwd) => {
   // === Google Register ===
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const decoded = jwtDecode(credentialResponse.credential);
-
       const response = await axios.post(
         `${Backurl}/api/auth/google`,
         {
-          name: decoded.name,
-          email: decoded.email,
-          googleId: decoded.sub,
-          avatar: decoded.picture,
+          credential: credentialResponse.credential,
         },
         { withCredentials: true }
       );
@@ -106,22 +101,32 @@ const getPasswordStrength = (pwd) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-indigo-100 via-white to-violet-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <ToastContainer position="top-center" />
-      <div className="max-w-md w-full mb-16 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
-            Create Account
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden text-gray-900 dark:text-white">
+      {/* Background Blobs */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/20 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-500/20 blur-[120px] rounded-full pointer-events-none" />
+
+
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full bg-white/50 dark:bg-black/40 p-8 rounded-3xl shadow-2xl border border-white/20 dark:border-white/10 backdrop-blur-xl relative z-10"
+      >
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-extrabold text-indigo-900 dark:text-white mb-2">
+            Create Account <Sparkles size={28} className="inline ml-2 text-amber-400" />
           </h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Register to get started
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            Join us and start your learning journey today
           </p>
         </div>
 
-        <form onSubmit={handleRegister} className="space-y-5">
+        <form onSubmit={handleRegister} className="space-y-4">
           {/* NAME */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
               Full Name
             </label>
             <input
@@ -131,76 +136,68 @@ const getPasswordStrength = (pwd) => {
               maxLength={MAX_NAME_LENGTH}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
-            <p className="text-sm text-gray-500">
-      {name.length}/{MAX_NAME_LENGTH} characters
-    </p>
-            {/* Validation message */}
-      {name.length > 0 && name.length < MIN_NAME_LENGTH && (
-        <p className="text-sm text-red-500">
-          Name must be at least {MIN_NAME_LENGTH} characters long.
-        </p>
-      )}
+            <div className={`mt-1 flex justify-between text-xs ${name.length > 0 && name.length < MIN_NAME_LENGTH ? "text-red-500" : "text-gray-400"}`}>
+              {name.length > 0 && name.length < MIN_NAME_LENGTH && <span>Min {MIN_NAME_LENGTH} chars required</span>}
+            </div>
           </div>
 
           {/* EMAIL */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
               Email Address
             </label>
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
 
-         {/* PASSWORD */}
-<div>
-  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-    Password
-  </label>
-  <div className="relative">
-    <input
-      type={showPassword ? "text" : "password"}
-      value={password}
-      onChange={(e) => handlePasswordChange(e.target.value)}
-      required
-      placeholder="••••••••"
-      className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white pr-10"
-    />
-    <button
-      type="button"
-      onClick={() => setShowPassword(prev => !prev)}
-      className="absolute right-3 top-2.5 text-gray-500 hover:text-indigo-600"
-    >
-      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-    </button>
-  </div>
-  <p
-  className={`text-sm mt-1 font-medium ${
-    passwordStrength === "Very Strong"
-      ? "text-indigo-600"
-      : passwordStrength === "Strong"
-      ? "text-green-600"
-      : passwordStrength === "Medium"
-      ? "text-yellow-500"
-      : "text-red-500"
-  }`}
->
-  Strength: {passwordStrength}
-</p>
-
-</div>
-
+          {/* PASSWORD */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => handlePasswordChange(e.target.value)}
+                required
+                placeholder="••••••••"
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {password.length > 0 && (
+              <div className="mt-1 flex items-center justify-between text-xs font-medium ml-1">
+                <span className="text-gray-500 dark:text-gray-400">Strength:</span>
+                <span className={`
+                        ${passwordStrength === "Very Strong" ? "text-indigo-600 dark:text-indigo-400" :
+                    passwordStrength === "Strong" ? "text-green-600 dark:text-green-400" :
+                      passwordStrength === "Medium" ? "text-yellow-600 dark:text-yellow-400" :
+                        "text-red-500 dark:text-red-400"}
+                    `}>
+                  {passwordStrength}
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* CONFIRM PASSWORD */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 ml-1">
               Confirm Password
             </label>
             <input
@@ -209,48 +206,55 @@ const getPasswordStrength = (pwd) => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               placeholder="Repeat your password"
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 text-white font-semibold py-2 px-4 rounded-xl shadow-md"
+            className="w-full mt-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? "Registering..." : "Register"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <i className="ri-loader-4-line animate-spin text-xl"></i>
+                Registering...
+              </span>
+            ) : "Register"}
           </button>
         </form>
 
         {/* OR LINE */}
-        <div className="my-6 flex items-center justify-center">
-          <div className="border-t border-gray-300 dark:border-gray-600 w-full"></div>
-          <span className="px-2 text-gray-500 dark:text-gray-400">or</span>
-          <div className="border-t border-gray-300 dark:border-gray-600 w-full"></div>
+        <div className="flex items-center my-6">
+          <div className="flex-grow h-px bg-gray-200 dark:bg-gray-700" />
+          <span className="mx-4 text-xs font-medium text-gray-400 uppercase tracking-wide">or</span>
+          <div className="flex-grow h-px bg-gray-200 dark:bg-gray-700" />
         </div>
 
-        {/* GOOGLE LOGIN */}
-        <GoogleLogin
-          onSuccess={handleGoogleSuccess}
-          onError={() => toast.error("Google login failed")}
-          theme="outline"
-          size="large"
-          type="standard"
-          shape="circle"
-          logo_alignment="center"
-        />
 
-        {/* LOGIN LINK */}
-        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => toast.error("Google login failed")}
+            theme="outline"
+            size="large"
+            type="standard"
+            shape="pill"
+            logo_alignment="center"
+            width="100%"
+          />
+        </div>
+
+        <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?
           <Link
             to="/login"
-            className="ml-1 text-indigo-500 hover:text-indigo-700 font-medium"
+            className="ml-1 text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
           >
             Log In
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

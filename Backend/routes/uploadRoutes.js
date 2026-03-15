@@ -3,6 +3,7 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinary");
 const Note = require("../models/Note");
+const { verifyAdmin } = require("../middleware/verifyToken");
 
 const router = express.Router();
 
@@ -43,11 +44,21 @@ const storage = new CloudinaryStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype !== 'application/pdf') {
+      return cb(new Error('Only PDF files are allowed'));
+    }
+    cb(null, true);
+  }
+});
 
 //  Upload Route
 router.post(
   "/upload",
+  verifyAdmin,
   extractMetadata,
   upload.single("pdf"),
   async (req, res) => {
@@ -80,7 +91,7 @@ router.post(
       });
     } catch (err) {
       console.error("Upload failed:", err.message || err);
-      res.status(500).json({ error: err.message || "Internal Server Error" });
+      res.status(500).json({ error: "Internal Server Error" });
     }
   }
 );

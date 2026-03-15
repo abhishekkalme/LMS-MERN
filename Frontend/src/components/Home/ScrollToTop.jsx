@@ -7,41 +7,37 @@ export default function ScrollToTop({ showButton = true, threshold = 50 }) {
   const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
 
-  const getContainer = () => document.getElementById("scroll-container");
-
   // Scroll to top on route change
   useEffect(() => {
-    const container = getContainer();
-    if (container) container.scrollTo({ top: 0, behavior: "smooth" });
-    else window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [pathname]);
 
   // Show/hide button based on scroll
   useEffect(() => {
     if (!showButton) return;
 
-    const container = getContainer();
+    let ticking = false;
 
     const handleScroll = () => {
-      const scrollPos = container ? container.scrollTop : window.scrollY;
-      setVisible(scrollPos > threshold);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setVisible(window.scrollY > threshold);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    if (container) container.addEventListener("scroll", handleScroll);
-    window.addEventListener("scroll", handleScroll);
-
+    window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll(); // initial check
 
     return () => {
-      if (container) container.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scroll", handleScroll);
     };
   }, [showButton, threshold]);
 
   const scrollToTop = () => {
-    const container = getContainer();
-    if (container) container.scrollTo({ top: 0, behavior: "smooth" });
-    else window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (!showButton) return null;
@@ -62,7 +58,7 @@ export default function ScrollToTop({ showButton = true, threshold = 50 }) {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             className="p-4 rounded-full shadow-lg flex items-center justify-center border
-                       bg-blue-600 text-white dark:bg-blue-600 hover:shadow-2xl
+                       bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-2xl
                        animate-glow transition-all duration-300 relative"
             aria-label="Scroll to top"
           >

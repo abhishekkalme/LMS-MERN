@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import {jwtDecode} from "jwt-decode"; 
 
 export const AuthContext = createContext();
@@ -58,8 +58,14 @@ export const AuthProvider = ({ children }) => {
     toast.info("⏳ Session expired. Please log in again.");
   };
 
+  // 🔐 Update User Data
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading, setUser, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
-import { Eye, EyeOff } from "lucide-react";
+import toast from "react-hot-toast";
+import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 
@@ -20,7 +20,7 @@ const ResetPassword = () => {
       await axios.post(`${Backurl}/api/auth/reset-password/${token}`, {
         password,
       });
-      toast.success("✅ Password reset successful!");
+      toast.success(<span className="flex items-center"><CheckCircle2 size={18} className="mr-1" /> Password reset successful!</span>);
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       toast.error(err.response?.data?.message || "Reset failed");

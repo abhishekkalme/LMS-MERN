@@ -15,16 +15,20 @@ router.post("/", async (req, res) => {
       },
     });
 
+    const escapeHtml = (str) => String(str)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
     const mailOptions = {
-        from: `"${name}" <${process.env.EMAIL_USER}>`,
+        from: `"${escapeHtml(name)}" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
-        replyTo: email, 
+        replyTo: escapeHtml(email), 
         subject: "New Contact Message",
         html: `
           <h3>New Message Received</h3>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Message:</strong><br/>${message}</p>
+          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          <p><strong>Message:</strong><br/>${escapeHtml(message)}</p>
         `,
       };
       

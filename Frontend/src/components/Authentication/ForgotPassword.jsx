@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const Backurl = import.meta.env.VITE_API_BASE_URL;
 

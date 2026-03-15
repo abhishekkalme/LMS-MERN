@@ -7,281 +7,59 @@ const sendMail = require("../utils/sendMail");
 require("dotenv").config();
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+const rateLimit = require("express-rate-limit");
+const { OAuth2Client } = require("google-auth-library");
+
 const router = express.Router();
 
-// Reset email HTML
-const resetPasswordTemplate = (link, name = "User") => `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Password Reset</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Nunito', sans-serif;
-      background-color: #f9f9f9;
-      padding: 0;
-      margin: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
-    .header {
-      text-align: center;
-      background-color: #4f46e5;
-      color: white;
-      padding: 1.5rem 0;
-      border-radius: 8px 8px 0 0;
-    }
-    .header h2 {
-      margin: 0;
-      font-size: 24px;
-    }
-    .content {
-      margin-top: 2rem;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 24px;
-      background-color: #4f46e5;
-      color: #fff;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-    .footer {
-      font-size: 14px;
-      color: #6b7280;
-      margin-top: 2rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2>JIT Learning System</h2>
-    </div>
-    <div class="content">
-      <p>Hi ${name},</p>
-      <p>We received a request to reset your password. Click the button below to continue:</p>
-      <a href="${link}" class="btn">Reset Password</a>
-      <p style="margin-top: 1rem;">This link is valid for <strong>15 minutes</strong>. If you did not request a password reset, please ignore this email.</p>
-    </div>
-    <div class="footer">
-      <p>Need help? Contact us at <a href="mailto:lms.secure.access@gmail.com">lms.secure.access@gmail.com</a></p>
-      <p>© 2025 JIT Learning System. All rights reserved.</p>
-    </div>
-  </div>
-</body>
-</html>
-`;
+const { resetPasswordTemplate, otpHtmlTemplate } = require("../utils/emailTemplates");
 
-const otpHtmlTemplate = (otp, name = "User") => `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Email Verification</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Nunito', sans-serif;
-      background-color: #f9f9f9;
-      margin: 0;
-      padding: 0;
-    }
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error("FATAL: JWT_SECRET environment variable is not set.");
+  process.exit(1);
+}
 
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background-color: #fff;
-      border-radius: 8px;
-      overflow: hidden;
-    }
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: { message: "Too many login attempts, please try again later." }
+});
 
-    .header {
-      background-color: #365cce;
-      color: #fff;
-      padding: 1.5rem 1rem;
-      text-align: center;
-    }
-
-    .header h2 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .sub-header {
-      font-size: 14px;
-      margin-top: 0.75rem;
-    }
-
-    .verify-title {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 0.75rem;
-      text-transform: capitalize;
-    }
-
-    .content {
-      padding: 1.5rem 1rem;
-      color: #4b5563;
-    }
-
-    .content h4 {
-      color: #374151;
-      margin-bottom: 0.5rem;
-    }
-
-    .otp-container {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .otp-digit {
-    display: inline-block;
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid #365cce;
-    border-radius: 0.25rem;
-    font-size: 20px;
-    font-weight: bold;
-    color: #365cce;
-    text-align: center;
-    line-height: 2.5rem; 
-    box-sizing: border-box;
-  }
-
-    .button {
-      display: inline-block;
-      margin-top: 1.5rem;
-      background-color: #f97316;
-      color: #fff;
-      padding: 0.5rem 1.25rem;
-      border-radius: 6px;
-      text-decoration: none;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 13px;
-      color: #7b8794;
-      padding: 1rem;
-    }
-
-    .contact {
-      background-color: #f3f4f6;
-      padding: 1.25rem;
-      text-align: center;
-    }
-
-    .contact h1 {
-      font-size: 18px;
-      color: #365cce;
-      margin: 0 0 0.5rem;
-    }
-
-    .contact a {
-      display: block;
-      color: #4b5563;
-      text-decoration: none;
-      margin-top: 0.25rem;
-    }
-
-    .footer-bottom {
-      background-color: #365cce;
-      color: #fff;
-      text-align: center;
-      font-size: 12px;
-      padding: 10px;
-      border-radius: 0 0 8px 8px;
-    }
-
-    @media screen and (max-width: 480px) {
-      .otp-digit {
-        width: 2.5rem;
-        height: 2.5rem;
-        font-size: 24px;
-      line-height: 3rem; 
-      }
-
-      .header h2 {
-        font-size: 20px;
-      }
-
-      .verify-title {
-        font-size: 18px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h2>JIT Learning System</h2>
-      <div class="sub-header">THANKS FOR SIGNING UP!</div>
-      <div class="verify-title">Verify your email address</div>
-    </div>
-
-    <div class="content">
-      <h4>Hello ${name},</h4>
-      <p>Please use the following One Time Password (OTP):</p>
-      <div class="otp-container">
-        ${otp
-          .split("")
-          .map((digit) => `<div class="otp-digit">${digit}</div>`)
-          .join("")}
-      </div>
-      <p style="margin-top: 1rem;">
-        This passcode will be valid for the next <strong>10 minutes</strong>.
-      </p>
-      <a href="#" class="button">Verify Email</a>
-      <p style="margin-top: 2rem;">
-        Thank you,<br />JIT Learning System Team
-      </p>
-    </div>
-
-    <div class="footer">
-      This email was sent from
-      <a href="mailto:lms.secure.access@gmail.com" style="color: #365cce;">lms.secure.access@gmail.com</a>
-    </div>
-
-    <div class="contact">
-      <h1>Get in touch</h1>
-      <a href="mailto:lms.secure.access@gmail.com">lms.secure.access@gmail.com</a>
-    </div>
-
-    <div class="footer-bottom">
-      © 2025 JIT Learning System. All Rights Reserved.
-    </div>
-  </div>
-</body>
-</html>
-`;
+const otpLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  message: { message: "Too many OTP requests, please try again later." }
+});
 
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role?.toLowerCase() || "student" },
-    process.env.JWT_SECRET || "your_secret_key",
+    JWT_SECRET,
     { expiresIn: "7d" }
   );
 };
 
-router.post("/register", async (req, res) => {
+const generateUsername = async (email) => {
+  let baseUsername = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "");
+  if (baseUsername.length < 3) baseUsername = baseUsername.padEnd(3, "0");
+  if (baseUsername.length > 20) baseUsername = baseUsername.substring(0, 20);
+
+  let username = baseUsername;
+  let counter = 1;
+  let exists = await User.findOne({ username });
+
+  while (exists) {
+    let suffix = `_${counter}`;
+    username = baseUsername.substring(0, 20 - suffix.length) + suffix;
+    exists = await User.findOne({ username });
+    counter++;
+  }
+
+  return username;
+};
+
+router.post("/register", otpLimiter, async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
@@ -316,7 +94,7 @@ router.post("/register", async (req, res) => {
     }
 
     // 🔹 Generate OTP & hash password
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = crypto.randomInt(100000, 999999).toString();
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 🔹 Save pending user
@@ -351,7 +129,7 @@ router.post("/register", async (req, res) => {
 });
 
 
-router.post("/verify-otp", async (req, res) => {
+router.post("/verify-otp", otpLimiter, async (req, res) => {
   const { email, otp } = req.body;
 
   try {
@@ -359,6 +137,13 @@ router.post("/verify-otp", async (req, res) => {
 
     if (!pending)
       return res.status(404).json({ message: "No pending verification found" });
+
+    // Check OTP expiry (10 minutes)
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    if (pending.createdAt < tenMinutesAgo) {
+      await PendingUser.deleteOne({ email });
+      return res.status(400).json({ message: "OTP has expired. Please register again." });
+    }
 
     if (pending.blocked) {
       const now = new Date();
@@ -387,10 +172,13 @@ router.post("/verify-otp", async (req, res) => {
       });
     }
 
+    const username = await generateUsername(pending.email);
+
     const newUser = new User({
       name: pending.name,
       email: pending.email,
       password: pending.password,
+      username,
     });
 
     await newUser.save();
@@ -405,7 +193,7 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-router.post("/resend-otp", async (req, res) => {
+router.post("/resend-otp", otpLimiter, async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -447,7 +235,7 @@ router.post("/resend-otp", async (req, res) => {
       });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = crypto.randomInt(100000, 999999).toString();
 
     pending.otp = otp;
     pending.verifyAttempts = 3;
@@ -469,7 +257,7 @@ router.post("/resend-otp", async (req, res) => {
 });
 
 // ===== EMAIL/PASSWORD LOGIN =====
-router.post("/login", async (req, res) => {
+router.post("/login", loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -508,14 +296,28 @@ router.post("/login", async (req, res) => {
 
 
 // ===== GOOGLE LOGIN =====
+const googleClient = new OAuth2Client(process.env.VITE_APP_GOOGLE_CLIENT_ID);
 
-router.post("/google", async (req, res) => {
+router.post("/google", loginLimiter, async (req, res) => {
   try {
-    const { name, email, googleId, avatar } = req.body;
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({ message: "Google ID token is required" });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.VITE_APP_GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { name, email, sub: googleId, picture: avatar } = payload;
 
     let user = await User.findOne({ email });
 
     if (!user) {
+      const username = await generateUsername(email);
       user = new User({
         name,
         email,
@@ -523,6 +325,7 @@ router.post("/google", async (req, res) => {
         avatar,
         isGoogle: true,
         role: "student",
+        username,
       });
 
       await user.save();
@@ -548,11 +351,20 @@ router.post("/google", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    const token = req.header("Authorization");
+    let token = req.header("Authorization");
     if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(verified.id).select("-password");
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7, token.length);
+    }
+
+    const verified = jwt.verify(token, JWT_SECRET);
+    let user = await User.findById(verified.id).select("-password -otp -resetToken");
+
+    if (user && !user.username) {
+      user.username = await generateUsername(user.email);
+      await user.save();
+    }
 
     res.json(user);
   } catch (err) {
@@ -561,7 +373,7 @@ router.get("/me", async (req, res) => {
   }
 });
 
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", loginLimiter, async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -617,6 +429,217 @@ router.post("/reset-password/:token", async (req, res) => {
     res.json({ message: "Password has been reset successfully." });
   } catch (err) {
     console.error("Reset Password Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.put("/update-profile", async (req, res) => {
+  try {
+    let token = req.header("Authorization");
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    if (token.startsWith("Bearer ")) {
+      token = token.slice(7, token.length);
+    }
+
+    const verified = jwt.verify(token, JWT_SECRET);
+    const userId = verified.id;
+
+    const { 
+        name, bio, avatar, socialProfiles, username, isPublic, 
+        privacySettings, academic, customSections 
+    } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (name) user.name = name;
+    if (bio !== undefined) user.bio = bio;
+    if (avatar && /^https:\/\/res\.cloudinary\.com\//.test(avatar)) user.avatar = avatar;
+    if (isPublic !== undefined) user.isPublic = isPublic;
+    if (academic) user.academic = { ...user.academic, ...academic };
+    if (customSections) user.customSections = customSections;
+
+    // Username update logic
+    if (username && username !== user.username) {
+      if (user.usernameChanged) {
+        return res.status(400).json({ message: "Username can only be changed once" });
+      }
+
+      const usernameRegex = /^[a-z0-9_]{3,20}$/;
+      if (!usernameRegex.test(username)) {
+        return res.status(400).json({ message: "Invalid username format" });
+      }
+
+      const existing = await User.findOne({ username: username.toLowerCase() });
+      if (existing) {
+        return res.status(400).json({ message: "Username already taken" });
+      }
+
+      user.username = username.toLowerCase();
+      user.usernameChanged = true;
+    }
+    
+    if (privacySettings) {
+      user.privacySettings = { ...user.privacySettings, ...privacySettings };
+    }
+
+    if (socialProfiles) {
+      user.socialProfiles = { ...user.socialProfiles, ...socialProfiles };
+    }
+
+    const { updateOnboarding } = require("../utils/activityEngine");
+    updateOnboarding(user);
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        avatar: user.avatar,
+        bio: user.bio,
+        role: user.role,
+        isPublic: user.isPublic,
+        academic: user.academic,
+        customSections: user.customSections,
+        privacySettings: user.privacySettings,
+        socialProfiles: user.socialProfiles,
+        platforms: user.platforms,
+        developerScore: user.developerScore,
+        badges: user.badges,
+        onboarding: user.onboarding,
+        isGoogle: user.isGoogle,
+      }
+    });
+  } catch (err) {
+    console.error("Update Profile Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// POST Connect Platform
+router.post("/platform/:name", async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const verified = jwt.verify(token, JWT_SECRET);
+        const { username } = req.body;
+        const platformName = req.params.name.toLowerCase();
+
+        const user = await User.findById(verified.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        if (!user.platforms[platformName]) {
+            return res.status(400).json({ message: "Invalid platform" });
+        }
+
+        user.platforms[platformName].username = username;
+        user.platforms[platformName].verified = true; // Simplified for MVP
+        
+        const { syncUserStats, logActivity } = require("../utils/activityEngine");
+        logActivity(user, platformName, `Connected ${platformName} account: ${username}`);
+        await user.save();
+        
+        // Trigger immediate sync
+        await syncUserStats(user._id);
+        
+        const updatedUser = await User.findById(user._id);
+        res.json({ message: `${platformName} connected successfully`, user: updatedUser });
+    } catch (err) {
+        console.error("Connect Platform Error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// DELETE Disconnect Platform
+router.delete("/platform/:name", async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const verified = jwt.verify(token, JWT_SECRET);
+        const platformName = req.params.name.toLowerCase();
+
+        const user = await User.findById(verified.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        if (!user.platforms[platformName]) {
+            return res.status(400).json({ message: "Invalid platform" });
+        }
+
+        const oldHandle = user.platforms[platformName].username;
+        user.platforms[platformName].username = "";
+        user.platforms[platformName].verified = false;
+        user.platforms[platformName].stats = {};
+
+        const { logActivity, updateOnboarding } = require("../utils/activityEngine");
+        logActivity(user, platformName, `Disconnected ${platformName} account: ${oldHandle}`);
+        updateOnboarding(user);
+        
+        await user.save();
+        res.json({ message: "Platform disconnected", user });
+    } catch (err) {
+        console.error("Disconnect Platform Error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// POST Refresh Stats
+router.post("/refresh", async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const verified = jwt.verify(token, JWT_SECRET);
+
+        const { syncUserStats } = require("../utils/activityEngine");
+        await syncUserStats(verified.id);
+
+        const updatedUser = await User.findById(verified.id);
+        res.json({ message: "Stats refreshed successfully", user: updatedUser });
+    } catch (err) {
+        console.error("Refresh Error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// GET Public Profile
+router.get("/profile/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username: username.toLowerCase() }).select("-password -otp -resetToken -email -googleId");
+
+    if (!user) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    if (!user.isPublic) {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        if (token) {
+            try {
+                const verified = jwt.verify(token, JWT_SECRET);
+                if (verified.id !== user._id.toString()) {
+                    return res.status(404).json({ message: "Profile is private" });
+                }
+            } catch (err) {
+                return res.status(404).json({ message: "Profile is private" });
+            }
+        } else {
+            return res.status(404).json({ message: "Profile is private" });
+        }
+    }
+
+    // Apply privacy settings
+    const profile = user.toObject();
+    const settings = user.privacySettings;
+
+    if (!settings.github) delete profile.platforms.github;
+    if (!settings.leetcode) delete profile.platforms.leetcode;
+    if (!settings.codeforces) delete profile.platforms.codeforces;
+    if (!settings.heatmap) profile.hideHeatmap = true;
+    if (!settings.socials) profile.socialProfiles = {};
+
+    res.json(profile);
+  } catch (err) {
+    console.error("Fetch Public Profile Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });

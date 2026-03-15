@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Note = require('../models/Note');
 const { verifyAdmin } = require("../middleware/verifyToken"); 
 
 // Change User Role (Admin Only)
@@ -42,8 +43,46 @@ router.delete('/users/:id', verifyAdmin, async (req, res) => {
   
       res.status(200).json({ message: "User deleted", user: deletedUser });
     } catch (err) {
-      res.status(500).json({ error: "Server error" });
     }
   });
-  
+
+// Admin Analytics Stats
+router.get('/stats', verifyAdmin, async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalNotes = await Note.countDocuments();
+    
+    // User growth (simple: by month)
+    const userGrowth = await User.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    // Top downloaded notes
+    const topNotes = await Note.find().sort({ downloadCount: -1 }).limit(5);
+
+    // Platform distribution
+    const users = await User.find({}, 'platforms');
+    const platforms = {
+      github: users.filter(u => u.platforms?.github?.username).length,
+      leetcode: users.filter(u => u.platforms?.leetcode?.username).length,
+    };
+
+    res.status(200).json({
+      summary: { totalUsers, totalNotes },
+      userGrowth,
+      topNotes,
+      platforms
+    });
+  } catch (err) {
+    console.error("Stats fetch error:", err);
+    res.status(500).json({ error: "Failed to fetch stats" });
+  }
+});
+
 module.exports = router;

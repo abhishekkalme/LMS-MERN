@@ -48,6 +48,10 @@ const noteSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    downloadCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true, 
