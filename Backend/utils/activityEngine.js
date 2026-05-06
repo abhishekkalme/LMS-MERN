@@ -2,16 +2,51 @@ const axios = require("axios");
 const User = require("../models/User");
 
 const fetchGitHubStats = async (username) => {
+  const headers = { 'User-Agent': 'Codolio-App' };
   try {
-    const userRes = await axios.get(`https://api.github.com/users/${username}`);
-    const { public_repos, followers, created_at } = userRes.data;
-    
-    // Total commits is hard to get without token, using repos as proxy or searching
-    // For now, let's assume commits = repos * 10 for score calculation if not available
+    const [userRes, eventsRes, reposRes] = await Promise.allSettled([
+        axios.get(`https://api.github.com/users/${username}`, { headers }),
+        axios.get(`https://api.github.com/users/${username}/events/public`, { headers }),
+        axios.get(`https://api.github.com/users/${username}/repos?sort=pushed&per_page=1`, { headers })
+    ]);
+
+    const userStats = userRes.status === 'fulfilled' ? userRes.value.data : null;
+    const events = eventsRes.status === 'fulfilled' ? eventsRes.value.data : [];
+    const latestPushRepo = (reposRes.status === 'fulfilled' && reposRes.value.data?.length > 0) ? reposRes.value.data[0] : null;
+
+    if (!userStats) {
+        console.warn(`[GitHub] Primary user info failed for ${username}, possibly rate limited.`);
+        return null;
+    }
+
+    const { public_repos, followers } = userStats;
+
+    // Find latest commit from events
+    let latestCommit = null;
+    if (Array.isArray(events)) {
+        const pushEvent = events.find(e => e.type === "PushEvent");
+        if (pushEvent) {
+            latestCommit = {
+                message: pushEvent.payload.commits[0]?.message || "No message",
+                repo: pushEvent.repo.name,
+                date: new Date(pushEvent.created_at),
+                url: `https://github.com/${pushEvent.repo.name}/commit/${pushEvent.payload.commits[0]?.sha}`
+            };
+        }
+    }
+
+    const latestPush = latestPushRepo ? {
+        repo: latestPushRepo.full_name,
+        date: new Date(latestPushRepo.pushed_at),
+        url: latestPushRepo.html_url
+    } : null;
+
     return {
       repos: public_repos,
-      commits: public_repos * 15, // Synthetic for demo, would use better API in prod
+      commits: public_repos * 15,
       followers: followers,
+      latestCommit,
+      latestPush
     };
   } catch (err) {
     console.error(`Error fetching GitHub stats for ${username}:`, err.message);
@@ -21,19 +56,56 @@ const fetchGitHubStats = async (username) => {
 
 const fetchLeetCodeStats = async (username) => {
   try {
-    const res = await axios.get(`https://leetcode-stats-api.herokuapp.com/${username}`);
-    if (res.data.status === "success") {
-      return {
-        totalSolved: res.data.totalSolved,
-        easy: res.data.easySolved,
-        medium: res.data.mediumSolved,
-        hard: res.data.hardSolved,
-        streak: res.data.streak || 0,
-        ranking: res.data.ranking,
-        topics: res.data.submissionNum || {} // Using submissionNum as topic proxy if available
-      };
+    const graphqlQuery = {
+        query: `
+            query userRecentSubmissions($username: String!, $limit: Int!) {
+                recentSubmissionList(username: $username, limit: $limit) {
+                    title
+                    titleSlug
+                    timestamp
+                    statusDisplay
+                }
+            }
+        `,
+        variables: { username, limit: 10 }
+    };
+
+    const [statsRes, submissionsRes] = await Promise.allSettled([
+        axios.get(`https://leetcode-stats-api.herokuapp.com/${username}`),
+        axios.post('https://leetcode.com/graphql', graphqlQuery, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+    ]);
+
+    const statsData = statsRes.status === 'fulfilled' ? statsRes.value.data : null;
+    
+    // If we can't get basic stats, we can't proceed with a partial update that's useful
+    if (!statsData || statsData.status !== "success") {
+        console.warn(`[LeetCode] Stats API failed for ${username}`);
+        return null;
     }
-    return null;
+
+    const submissionsData = (submissionsRes.status === 'fulfilled' && !submissionsRes.value.data.errors) ? submissionsRes.value.data : null;
+    const recentSolves = submissionsData?.data?.recentSubmissionList
+        ?.filter(s => s.statusDisplay === "Accepted")
+        ?.map(s => ({
+            title: s.title,
+            titleSlug: s.titleSlug,
+            timestamp: new Date(parseInt(s.timestamp) * 1000)
+        })) || [];
+
+    return {
+        totalSolved: statsData.totalSolved,
+        easy: statsData.easySolved,
+        medium: statsData.mediumSolved,
+        hard: statsData.hardSolved,
+        streak: statsData.streak || 0,
+        ranking: statsData.ranking,
+        topics: statsData.submissionNum || {},
+        recentSolves: recentSolves.length > 0 ? recentSolves.slice(0, 5) : undefined
+    };
   } catch (err) {
     console.error(`Error fetching LeetCode stats for ${username}:`, err.message);
     return null;
@@ -144,27 +216,43 @@ const logActivity = (user, source, message, link = "") => {
 };
 
 const syncUserStats = async (userId) => {
+  console.log(`[Sync] Starting sync for user: ${userId}`);
   const user = await User.findById(userId);
   if (!user) return;
 
   const p = user.platforms;
   let changed = false;
 
+  // Always mark overall sync time
+  user.lastSyncedAt = new Date();
+  changed = true;
+
   if (p.github?.username) {
+    console.log(`[Sync] Fetching GitHub for: ${p.github.username}`);
     const stats = await fetchGitHubStats(p.github.username);
     if (stats) {
-        p.github.stats = stats;
+        console.log(`[Sync] GitHub stats fetched: Commits ${stats.latestCommit?.message || 'None'}`);
+        p.github.stats = { 
+            ...p.github.stats, 
+            ...stats,
+            latestCommit: stats.latestCommit || p.github.stats?.latestCommit,
+            latestPush: stats.latestPush || p.github.stats?.latestPush
+        };
         p.github.lastSyncedAt = new Date();
-        changed = true;
     }
   }
 
   if (p.leetcode?.username) {
+    console.log(`[Sync] Fetching LeetCode for: ${p.leetcode.username}`);
     const stats = await fetchLeetCodeStats(p.leetcode.username);
     if (stats) {
-        p.leetcode.stats = stats;
+        console.log(`[Sync] LeetCode stats fetched: Solves ${stats.recentSolves?.length || 0}`);
+        p.leetcode.stats = { 
+            ...p.leetcode.stats, 
+            ...stats,
+            recentSolves: stats.recentSolves || p.leetcode.stats?.recentSolves
+        };
         p.leetcode.lastSyncedAt = new Date();
-        changed = true;
     }
   }
 
@@ -173,24 +261,50 @@ const syncUserStats = async (userId) => {
       if (stats) {
           p.codeforces.stats = stats;
           p.codeforces.lastSyncedAt = new Date();
-          changed = true;
       }
   }
 
   if (changed) {
     user.developerScore = calculateScore(user);
     user.badges = awardBadges(user);
-    user.lastSyncedAt = new Date();
     updateOnboarding(user);
+    
+    // CRITICAL: Force Mongoose to recognize changes in nested objects
+    user.markModified('platforms');
+    user.markModified('lastSyncedAt');
+    
     await user.save();
+    console.log(`[Sync] User ${userId} saved successfully with new timestamp.`);
   }
 };
 
+const BATCH_SIZE = 20;
 const syncAllUsers = async () => {
-    const users = await User.find({});
-    for (const user of users) {
-        await syncUserStats(user._id);
-    }
+  console.log('[Sync] Starting batched user sync...');
+  let skip = 0;
+  let totalSynced = 0;
+
+  while (true) {
+    const users = await User.find({})
+      .select('_id')
+      .skip(skip)
+      .limit(BATCH_SIZE)
+      .lean();
+
+    if (!users.length) break;
+
+    await Promise.all(
+      users.map(user => syncUserStats(user._id).catch(err =>
+        console.error(`[Sync] Failed for user ${user._id}:`, err.message)
+      ))
+    );
+
+    totalSynced += users.length;
+    skip += BATCH_SIZE;
+    console.log(`[Sync] Synced batch of ${users.length}, total: ${totalSynced}`);
+  }
+
+  console.log(`[Sync] Completed. Total users synced: ${totalSynced}`);
 };
 
 module.exports = { syncUserStats, syncAllUsers, logActivity, updateOnboarding };

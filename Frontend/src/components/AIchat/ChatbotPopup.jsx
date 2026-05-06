@@ -290,7 +290,7 @@ export default function ChatBot() {
       {/* Chat Popup */}
       <AnimatePresence>
         {showChat && (
-          <Draggable handle=".chat-header">
+          <Draggable handle=".chat-header" cancel=".cancel-drag">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -303,7 +303,12 @@ export default function ChatBot() {
                 <h3 className="font-semibold text-sm tracking-wide">
                   AI Chat Assistant
                 </h3>
-                <div className="flex items-center gap-2">
+                <div 
+                  className="flex items-center gap-2 cancel-drag"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
                   <button
                     onClick={exportChat}
                     title="Export Chat"

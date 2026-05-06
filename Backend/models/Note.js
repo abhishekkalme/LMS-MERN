@@ -58,4 +58,8 @@ const noteSchema = new mongoose.Schema(
   }
 );
 
+noteSchema.index({ branch: 1, year: 1, semester: 1, subject: 1, unit: 1 });
+noteSchema.index({ approved: 1, createdAt: -1 });
+noteSchema.index({ downloadedBy: 1 });
+
 module.exports = mongoose.model("Note", noteSchema);

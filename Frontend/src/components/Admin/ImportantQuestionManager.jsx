@@ -64,11 +64,28 @@ const ImportantQuestionManager = () => {
         formData.append("pdf", selectedFile);
 
         const queryParams = new URLSearchParams({ branch, year, semester, subject, unit }).toString();
+        const token = localStorage.getItem("token");
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+        
+        console.log("Token exists:", !!token, "User role:", user.role);
+        
+        if (!token) {
+            toast.error("Please log in again");
+            return;
+        }
+        
+        if (user.role !== "admin") {
+            toast.error("Admin access required");
+            return;
+        }
+
         const toastId = toast.loading("⏳ Uploading Important Question...");
 
         try {
             await axios.post(`${API_BASE_URL}/api/questions/upload?${queryParams}`, formData, {
-                headers: { "Content-Type": "multipart/form-data" },
+                headers: { 
+                    Authorization: `Bearer ${token}`
+                },
                 onUploadProgress: (progressEvent) => {
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     setProgress(percentCompleted);
@@ -81,7 +98,12 @@ const ImportantQuestionManager = () => {
             setFileKey(Date.now());
             setUnit("");
         } catch (err) {
-            toast.error("❌ Upload failed.", { id: toastId });
+            console.error("Upload error:", err.response?.data || err.message);
+            if (err.response?.status === 401) {
+                toast.error("Session expired. Please log in again.", { id: toastId });
+            } else {
+                toast.error(err.response?.data?.error || "❌ Upload failed.", { id: toastId });
+            }
             setProgress(0);
         }
     };

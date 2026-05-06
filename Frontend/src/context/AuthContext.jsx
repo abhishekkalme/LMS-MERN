@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import {jwtDecode} from "jwt-decode"; 
+import { jwtDecode } from "jwt-decode";
 
 export const AuthContext = createContext();
 
@@ -13,10 +13,10 @@ export const AuthProvider = ({ children }) => {
   const isTokenExpired = (token) => {
     try {
       const decoded = jwtDecode(token);
-      const now = Date.now() / 1000; 
+      const now = Date.now() / 1000;
       return decoded.exp < now;
     } catch (err) {
-      return true; 
+      return true;
     }
   };
 
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     setToken("");
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    toast.info("⏳ Session expired. Please log in again.");
+    toast("⏳ Session expired. Please log in again.");
   };
 
   // 🔐 Update User Data

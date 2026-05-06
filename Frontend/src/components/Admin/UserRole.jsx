@@ -42,8 +42,8 @@ const UserRole = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (Array.isArray(res.data)) {
-        const sorted = res.data.sort(
+      if (Array.isArray(res.data.users)) {
+        const sorted = res.data.users.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setUsers(sorted);

@@ -46,4 +46,6 @@ const importantQuestionSchema = new mongoose.Schema(
   }
 );
 
+importantQuestionSchema.index({ branch: 1, year: 1, semester: 1, subject: 1 });
+
 module.exports = mongoose.model("ImportantQuestion", importantQuestionSchema);

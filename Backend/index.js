@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
 const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const connectDB = require("./config/db");
 
 const syllabusRoutes = require("./routes/syllabus");
@@ -20,16 +21,18 @@ connectDB();
 
 const app = express();
 app.use(helmet());
+
+// Global Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { message: "Too many requests from this IP, please try again later." }
+});
+app.use(limiter);
+
 app.use(express.json({ limit: "5mb" }));
 
-// Diagnostic logging
-app.use((req, res, next) => {
-  console.log(`📡 [${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
-
 const allowedOrigins = [
-  "https://lms-learning-management-system.netlify.app",
   "http://localhost:5173",
 
   process.env.CLIENT_URL,
@@ -67,9 +70,11 @@ app.use("/api/stats", require("./routes/statsRoutes"));
 
 // ✅ Serve frontend in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "client", "build")));
+  // Vite builds to 'Frontend/dist'
+  const frontendPath = path.join(__dirname, "..", "Frontend", "dist");
+  app.use(express.static(frontendPath));
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
 
@@ -83,4 +88,15 @@ app.listen(PORT, () => {
   setInterval(syncAllUsers, 6 * 60 * 60 * 1000);
   // Optional: Run immediately on startup
   // syncAllUsers();
+});
+
+// ✅ Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(`❌ [Error] ${err.stack}`);
+  const statusCode = err.status || 500;
+  res.status(statusCode).json({
+    message: err.message || "Internal Server Error",
+    // Only include stack trace in development
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
+  });
 });

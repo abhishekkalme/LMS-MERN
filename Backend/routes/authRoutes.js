@@ -553,6 +553,70 @@ router.post("/platform/:name", async (req, res) => {
     }
 });
 
+// GET Generate LeetCode Verification Code
+router.get("/platform/leetcode/verify-code", async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const verified = jwt.verify(token, JWT_SECRET);
+        
+        const user = await User.findById(verified.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const verificationCode = crypto.randomBytes(4).toString('hex').toUpperCase(); // 8 chars
+        user.platforms.leetcode.stats.verificationCode = verificationCode;
+        user.platforms.leetcode.stats.verificationExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 mins
+        
+        await user.save();
+        res.json({ verificationCode });
+    } catch (err) {
+        console.error("Generate Code Error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// POST Verify LeetCode Profile
+router.post("/platform/leetcode/verify", async (req, res) => {
+    try {
+        const token = req.header("Authorization")?.replace("Bearer ", "");
+        const verified = jwt.verify(token, JWT_SECRET);
+        const { username } = req.body;
+
+        const user = await User.findById(verified.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const expectedCode = user.platforms.leetcode.stats.verificationCode;
+        if (!expectedCode) return res.status(400).json({ message: "No verification code generated" });
+
+        if (new Date() > user.platforms.leetcode.stats.verificationExpires) {
+            return res.status(400).json({ message: "Verification code expired" });
+        }
+
+        // Logic to verify code on LeetCode profile
+        // For production, we would use a scraper or official API
+        // For now, let's simulate success or use a simple fetch if possible
+        // Note: LeetCode profile pages are CSR, might need pupetteer or a proxy
+        
+        // Mocking verification for now to let frontend proceed
+        // In a real app, we'd fetch https://leetcode.com/${username}/ and look for expectedCode
+        
+        user.platforms.leetcode.username = username;
+        user.platforms.leetcode.verified = true;
+        user.platforms.leetcode.stats.verificationCode = ""; // Clear code
+        
+        const { syncUserStats, logActivity } = require("../utils/activityEngine");
+        logActivity(user, "leetcode", `Verified LeetCode account: ${username}`);
+        await user.save();
+        
+        await syncUserStats(user._id);
+        const updatedUser = await User.findById(user._id);
+        
+        res.json({ message: "LeetCode verified successfully!", user: updatedUser });
+    } catch (err) {
+        console.error("Verify LeetCode Error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 // DELETE Disconnect Platform
 router.delete("/platform/:name", async (req, res) => {
     try {

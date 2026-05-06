@@ -40,6 +40,17 @@ const userSchema = new mongoose.Schema(
           repos: { type: Number, default: 0 },
           commits: { type: Number, default: 0 },
           followers: { type: Number, default: 0 },
+          latestCommit: {
+            message: String,
+            repo: String,
+            date: Date,
+            url: String
+          },
+          latestPush: {
+            repo: String,
+            date: Date,
+            url: String
+          }
         }
       },
       leetcode: {
@@ -53,7 +64,16 @@ const userSchema = new mongoose.Schema(
           hard: { type: Number, default: 0 },
           streak: { type: Number, default: 0 },
           ranking: { type: Number, default: 0 },
-          topics: { type: Object, default: {} }
+          topics: { type: Object, default: {} },
+          verificationCode: { type: String, default: "" },
+          verificationExpires: { type: Date },
+          recentSolves: [
+            {
+              title: String,
+              titleSlug: String,
+              timestamp: Date
+            }
+          ]
         }
       },
       codeforces: {
@@ -132,5 +152,11 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.index({ role: 1, createdAt: -1 });
+userSchema.index({ "platforms.github.username": 1 });
+userSchema.index({ "platforms.leetcode.username": 1 });
+userSchema.index({ "platforms.codeforces.username": 1 });
+userSchema.index({ isPublic: 1, username: 1 });
 
 module.exports = mongoose.model("User", userSchema);

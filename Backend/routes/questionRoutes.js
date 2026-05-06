@@ -3,6 +3,7 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinary");
 const ImportantQuestion = require("../models/ImportantQuestion");
+const { verifyAdmin } = require("../middleware/verifyToken");
 
 const router = express.Router();
 
@@ -38,7 +39,8 @@ const upload = multer({ storage });
 
 // @route   POST /api/questions/upload
 // @desc    Upload an Important Question PDF
-router.post("/upload", extractMetadata, upload.single("pdf"), async (req, res) => {
+// @access  Admin only
+router.post("/upload", verifyAdmin, extractMetadata, upload.single("pdf"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
@@ -88,7 +90,8 @@ router.get("/:branch/:year/:semester/:subject", async (req, res) => {
 
 // @route   DELETE /api/questions/:id
 // @desc    Delete an Important Question record
-router.delete("/:id", async (req, res) => {
+// @access  Admin only
+router.delete("/:id", verifyAdmin, async (req, res) => {
   try {
     const question = await ImportantQuestion.findById(req.params.id);
     if (!question) return res.status(404).json({ error: "Question not found" });

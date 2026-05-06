@@ -38,8 +38,7 @@ const Login = () => {
       );
 
       login(response.data.user, response.data.token);
-      toast.success("Login successful!");
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate("/", { replace: true }), 1000);
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
       toast.error(msg);
@@ -62,7 +61,7 @@ const Login = () => {
 
       login(response.data.user, response.data.token);
       toast.success("Google account logged in!");
-      setTimeout(() => navigate("/"), 1000);
+      setTimeout(() => navigate("/", { replace: true }), 1000);
     } catch (error) {
       const msg =
         error.response?.data?.message ||

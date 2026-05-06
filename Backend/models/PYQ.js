@@ -46,4 +46,7 @@ const pyqSchema = new mongoose.Schema(
   }
 );
 
+pyqSchema.index({ branch: 1, year: 1, semester: 1, subject: 1 });
+pyqSchema.index({ examSession: 1 });
+
 module.exports = mongoose.model("PYQ", pyqSchema);

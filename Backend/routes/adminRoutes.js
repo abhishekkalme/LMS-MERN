@@ -30,8 +30,20 @@ router.put('/users/:id/role', verifyAdmin, async (req, res) => {
 
 router.get('/users', verifyAdmin, async (req, res) => {
   try {
-    const users = await User.find({}, 'name email role createdAt isGoogle').sort({ createdAt: -1 });
-    res.json(users);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      User.find({}, 'name email role createdAt isGoogle')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      User.countDocuments()
+    ]);
+
+    res.json({ users, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch users" });
   }
@@ -49,35 +61,23 @@ router.delete('/users/:id', verifyAdmin, async (req, res) => {
 // Admin Analytics Stats
 router.get('/stats', verifyAdmin, async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const totalNotes = await Note.countDocuments();
-    
-    // User growth (simple: by month)
-    const userGrowth = await User.aggregate([
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { "_id": 1 } }
+    const [totalUsers, totalNotes, userGrowth, topNotes, githubCount, leetcodeCount] = await Promise.all([
+      User.countDocuments(),
+      Note.countDocuments(),
+      User.aggregate([
+        { $group: { _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }, count: { $sum: 1 } } },
+        { $sort: { "_id": 1 } }
+      ]),
+      Note.find().sort({ downloadCount: -1 }).limit(5).lean(),
+      User.countDocuments({ "platforms.github.username": { $exists: true, $ne: "" } }),
+      User.countDocuments({ "platforms.leetcode.username": { $exists: true, $ne: "" } })
     ]);
-
-    // Top downloaded notes
-    const topNotes = await Note.find().sort({ downloadCount: -1 }).limit(5);
-
-    // Platform distribution
-    const users = await User.find({}, 'platforms');
-    const platforms = {
-      github: users.filter(u => u.platforms?.github?.username).length,
-      leetcode: users.filter(u => u.platforms?.leetcode?.username).length,
-    };
 
     res.status(200).json({
       summary: { totalUsers, totalNotes },
       userGrowth,
       topNotes,
-      platforms
+      platforms: { github: githubCount, leetcode: leetcodeCount }
     });
   } catch (err) {
     console.error("Stats fetch error:", err);

@@ -79,6 +79,8 @@ const UploadPDF = () => {
     const formData = new FormData();
     formData.append("pdf", selectedFile);
 
+    const token = localStorage.getItem("token");
+
     const queryParams = new URLSearchParams({
       branch,
       year,
@@ -103,7 +105,10 @@ const UploadPDF = () => {
         `${API_BASE_URL}/api/upload/upload?${queryParams}`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
           timeout: 30000,
         }
       );

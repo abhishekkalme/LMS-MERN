@@ -1,102 +1,105 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { AuthProvider } from "./context/AuthContext";
 import "./index.css";
 import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements, Navigate, } from "react-router-dom";
 
-import Home from "./components/Home/Home.jsx";
-import Notes from "./components/Notes/Notes.jsx";
-import SelectBranch from "./components/Notes/SelectBranch.jsx";
-import FirstYear from "./components/Notes/FirstYear/FirstYear.jsx";
-import SecondYear from "./components/Notes/SecondYear/SecondYear.jsx";
-import ThirdYear from "./components/Notes/ThirdYear/ThirdYear.jsx";
-import FourthYear from "./components/Notes/FourthYear/FourthYear.jsx";
-import CoursePage from "./components/Notes/FirstYear/CoursePage.jsx";
-import Login from "./components/Login.jsx";
-import Register from "./components/Register.jsx";
-import PrivateRoute from "./components/PrivateRoute.jsx";
-import About from "./components/About/About.jsx";
-import Contact from "./components/Contact/Contact.jsx";
-import Syllabus from "./components/Syllabus/Syllabus.jsx";
-import SyllabusManager from "./components/Admin/SyllabusManager.jsx";
-import AdminRoute from "./components/Admin/AdminRoute.jsx";
-import AdminDashboard from "./components/Admin/AdminDashboard.jsx";
-import NoNotesAvailable from "./components/Notes/NoNotesAvailable.jsx";
-import UploadPDF from "./components/Admin/UploadPDF.jsx";
-import IMPORTANT_QUESTIONS_MANAGER from "./components/Admin/ImportantQuestionManager.jsx";
-import ViewQuestions from "./components/ImportantQuestions/ViewQuestions.jsx";
-import PYQ_MANAGER from "./components/Admin/PYQManager.jsx";
-import ViewPYQs from "./components/PYQs/ViewPYQs.jsx";
-import UserRole from "./components/Admin/UserRole.jsx";
-import VerifyOTP from "./components/VerifyOTP.jsx";
-import ForgotPassword from "./components/Authentication/ForgotPassword.jsx";
-import ResetPassword from "./components/Authentication/ResetPassword.jsx";
-import TimeTable from "./components/TimeTable/TimeTable.jsx";
-import UserProfile from "./components/Profile/UserProfile.jsx";
-import PublicProfile from "./components/Profile/PublicProfile.jsx";
-import CompareView from "./components/Profile/CompareView.jsx";
-import Platforms from "./components/Profile/Platforms.jsx";
-import PPolicy from "./components/Footer/PPolicy.jsx";
-import TOS from "./components/Footer/TOS.jsx";
-import Pomodoro from "./components/StudyTools/Pomodoro.jsx";
-import GPACalculator from "./components/StudyTools/GPACalculator.jsx";
-import StudyManager from "./components/StudyTools/StudyManager.jsx";
+import LoadingBar from "./components/Header/LoadingBar.jsx";
 
+const Home = lazy(() => import("./components/Home/Home.jsx"));
+const Notes = lazy(() => import("./components/Notes/Notes.jsx"));
+const SelectBranch = lazy(() => import("./components/Notes/SelectBranch.jsx"));
+const FirstYear = lazy(() => import("./components/Notes/FirstYear/FirstYear.jsx"));
+const SecondYear = lazy(() => import("./components/Notes/SecondYear/SecondYear.jsx"));
+const ThirdYear = lazy(() => import("./components/Notes/ThirdYear/ThirdYear.jsx"));
+const FourthYear = lazy(() => import("./components/Notes/FourthYear/FourthYear.jsx"));
+const CoursePage = lazy(() => import("./components/Notes/FirstYear/CoursePage.jsx"));
+const Login = lazy(() => import("./components/Login.jsx"));
+const Register = lazy(() => import("./components/Register.jsx"));
+const PrivateRoute = lazy(() => import("./components/PrivateRoute.jsx"));
+const About = lazy(() => import("./components/About/About.jsx"));
+const Contact = lazy(() => import("./components/Contact/Contact.jsx"));
+const Syllabus = lazy(() => import("./components/Syllabus/Syllabus.jsx"));
+const SyllabusManager = lazy(() => import("./components/Admin/SyllabusManager.jsx"));
+const AdminRoute = lazy(() => import("./components/Admin/AdminRoute.jsx"));
+const AdminDashboard = lazy(() => import("./components/Admin/AdminDashboard.jsx"));
+const NoNotesAvailable = lazy(() => import("./components/Notes/NoNotesAvailable.jsx"));
+const UploadPDF = lazy(() => import("./components/Admin/UploadPDF.jsx"));
+const IMPORTANT_QUESTIONS_MANAGER = lazy(() => import("./components/Admin/ImportantQuestionManager.jsx"));
+const ViewQuestions = lazy(() => import("./components/ImportantQuestions/ViewQuestions.jsx"));
+const PYQ_MANAGER = lazy(() => import("./components/Admin/PYQManager.jsx"));
+const ViewPYQs = lazy(() => import("./components/PYQs/ViewPYQs.jsx"));
+const UserRole = lazy(() => import("./components/Admin/UserRole.jsx"));
+const VerifyOTP = lazy(() => import("./components/VerifyOTP.jsx"));
+const ForgotPassword = lazy(() => import("./components/Authentication/ForgotPassword.jsx"));
+const ResetPassword = lazy(() => import("./components/Authentication/ResetPassword.jsx"));
+const TimeTable = lazy(() => import("./components/TimeTable/TimeTable.jsx"));
+const UserProfile = lazy(() => import("./components/Profile/UserProfile.jsx"));
+const PublicProfile = lazy(() => import("./components/Profile/PublicProfile.jsx"));
+const CompareView = lazy(() => import("./components/Profile/CompareView.jsx"));
+const Platforms = lazy(() => import("./components/Profile/Platforms.jsx"));
+const PPolicy = lazy(() => import("./components/Footer/PPolicy.jsx"));
+const TOS = lazy(() => import("./components/Footer/TOS.jsx"));
+const Pomodoro = lazy(() => import("./components/StudyTools/Pomodoro.jsx"));
+const GPACalculator = lazy(() => import("./components/StudyTools/GPACalculator.jsx"));
+const StudyManager = lazy(() => import("./components/StudyTools/StudyManager.jsx"));
+
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+  </div>
+);
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-
-
       <Route path="/" element={<App />}>
-        {/* Public Routes */}
-        <Route index element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact-us" element={<Contact />} />
-        <Route path="/verify-otp" element={<VerifyOTP />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/u/:username" element={<PublicProfile />} />
-        <Route path="/compare" element={<CompareView />} />
-        <Route path="/platforms" element={<PrivateRoute><Platforms /></PrivateRoute>} />
+        <Route index element={<Suspense fallback={<LoadingFallback />}><Home /></Suspense>} />
+        <Route path="/login" element={<Suspense fallback={<LoadingFallback />}><Login /></Suspense>} />
+        <Route path="/register" element={<Suspense fallback={<LoadingFallback />}><Register /></Suspense>} />
+        <Route path="/about" element={<Suspense fallback={<LoadingFallback />}><About /></Suspense>} />
+        <Route path="/contact-us" element={<Suspense fallback={<LoadingFallback />}><Contact /></Suspense>} />
+        <Route path="/verify-otp" element={<Suspense fallback={<LoadingFallback />}><VerifyOTP /></Suspense>} />
+        <Route path="/forgot-password" element={<Suspense fallback={<LoadingFallback />}><ForgotPassword /></Suspense>} />
+        <Route path="/reset-password/:token" element={<Suspense fallback={<LoadingFallback />}><ResetPassword /></Suspense>} />
+        <Route path="/u/:username" element={<Suspense fallback={<LoadingFallback />}><PublicProfile /></Suspense>} />
+        <Route path="/compare" element={<Suspense fallback={<LoadingFallback />}><CompareView /></Suspense>} />
+        <Route path="/platforms" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><Platforms /></PrivateRoute></Suspense>} />
         <Route path="/privacy-policy" element={<PPolicy />} />
-        <Route path="/terms-of-service" element={<TOS />} />
-        <Route path="/important-questions" element={<PrivateRoute><ViewQuestions /></PrivateRoute>} />
-        <Route path="/pyqs" element={<PrivateRoute><ViewPYQs /></PrivateRoute>} />
+<Route path="/terms-of-service" element={<Suspense fallback={<LoadingFallback />}><TOS /></Suspense>} />
+        <Route path="/important-questions" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><ViewQuestions /></PrivateRoute></Suspense>} />
+        <Route path="/pyqs" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><ViewPYQs /></PrivateRoute></Suspense>} />
 
 
         {/* Private Routes */}
-        <Route path="/profile" element={<PrivateRoute><UserProfile /></PrivateRoute>} />
-        <Route path="notes" element={<PrivateRoute><Notes /></PrivateRoute>} />
-        <Route path="branch" element={<PrivateRoute><SelectBranch /></PrivateRoute>} />
-        <Route path="notes/firstyear" element={<PrivateRoute><FirstYear /></PrivateRoute>} />
-        <Route path="notes/secondyear" element={<PrivateRoute><SecondYear /></PrivateRoute>} />
-        <Route path="notes/thirdyear" element={<PrivateRoute><ThirdYear /></PrivateRoute>} />
-        <Route path="notes/fourthyear" element={<PrivateRoute><FourthYear /></PrivateRoute>} />
-        <Route path="NoNotesAvailable" element={<PrivateRoute><NoNotesAvailable /></PrivateRoute>} />
-        <Route path="notes/:subjectCode" element={<PrivateRoute><CoursePage /></PrivateRoute>} />
-        <Route path="/syllabus" element={<PrivateRoute><Syllabus /></PrivateRoute>} />
-        <Route path="/timetable" element={<PrivateRoute><TimeTable /></PrivateRoute>} />
+        <Route path="/profile" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><UserProfile /></PrivateRoute></Suspense>} />
+        <Route path="notes" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><Notes /></PrivateRoute></Suspense>} />
+        <Route path="branch" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><SelectBranch /></PrivateRoute></Suspense>} />
+        <Route path="notes/firstyear" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><FirstYear /></PrivateRoute></Suspense>} />
+        <Route path="notes/secondyear" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><SecondYear /></PrivateRoute></Suspense>} />
+        <Route path="notes/thirdyear" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><ThirdYear /></PrivateRoute></Suspense>} />
+        <Route path="notes/fourthyear" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><FourthYear /></PrivateRoute></Suspense>} />
+        <Route path="NoNotesAvailable" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><NoNotesAvailable /></PrivateRoute></Suspense>} />
+        <Route path="notes/:subjectCode" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><CoursePage /></PrivateRoute></Suspense>} />
+        <Route path="/syllabus" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><Syllabus /></PrivateRoute></Suspense>} />
+        <Route path="/timetable" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><TimeTable /></PrivateRoute></Suspense>} />
 
         {/* Study Tools Routes */}
-        <Route path="/study/pomodoro" element={<PrivateRoute><Pomodoro /></PrivateRoute>} />
-        <Route path="/study/gpa-calculator" element={<PrivateRoute><GPACalculator /></PrivateRoute>} />
-        <Route path="/study/tools" element={<PrivateRoute><StudyManager /></PrivateRoute>} />
+        <Route path="/study/pomodoro" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><Pomodoro /></PrivateRoute></Suspense>} />
+        <Route path="/study/gpa-calculator" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><GPACalculator /></PrivateRoute></Suspense>} />
+        <Route path="/study/tools" element={<Suspense fallback={<LoadingFallback />}><PrivateRoute><StudyManager /></PrivateRoute></Suspense>} />
         <Route path="/study/planner" element={<Navigate to="/study/tools?tab=planner" replace />} />
         <Route path="/study/highlighter" element={<Navigate to="/study/tools?tab=highlighter" replace />} />
 
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-        <Route path="admin/upload-notes" element={<PrivateRoute>< UploadPDF /></PrivateRoute>} />
-        <Route path="/admin/syllabus-table" element={<AdminRoute><SyllabusManager /></AdminRoute>} />
-        <Route path="/admin/users" element={<AdminRoute><UserRole /></AdminRoute>} />
-        <Route path="/admin/important-questions" element={<AdminRoute><IMPORTANT_QUESTIONS_MANAGER /></AdminRoute>} />
-        <Route path="/admin/pyqs" element={<AdminRoute><PYQ_MANAGER /></AdminRoute>} />
-
+        <Route path="/admin" element={<Suspense fallback={<LoadingFallback />}><AdminRoute><AdminDashboard /></AdminRoute></Suspense>} />
+        <Route path="admin/upload-notes" element={<Suspense fallback={<LoadingFallback />}><AdminRoute><UploadPDF /></AdminRoute></Suspense>} />
+        <Route path="/admin/syllabus-table" element={<Suspense fallback={<LoadingFallback />}><AdminRoute><SyllabusManager /></AdminRoute></Suspense>} />
+        <Route path="/admin/users" element={<Suspense fallback={<LoadingFallback />}><AdminRoute><UserRole /></AdminRoute></Suspense>} />
+        <Route path="/admin/important-questions" element={<Suspense fallback={<LoadingFallback />}><AdminRoute><IMPORTANT_QUESTIONS_MANAGER /></AdminRoute></Suspense>} />
+        <Route path="/admin/pyqs" element={<Suspense fallback={<LoadingFallback />}><AdminRoute><PYQ_MANAGER /></AdminRoute></Suspense>} />
 
 
 

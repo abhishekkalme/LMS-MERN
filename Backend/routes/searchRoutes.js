@@ -3,8 +3,6 @@ const router = express.Router();
 const Note = require("../models/Note");
 const PYQ = require("../models/PYQ");
 const ImportantQuestion = require("../models/ImportantQuestion");
-
-// Mapping of subject codes to names for smarter search
 const subjectNames = {
   // First Year
   "BT-101": "Engineering Chemistry",
@@ -76,14 +74,12 @@ const subjectNames = {
 router.get("/", async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q || q.length > 100) {
-      return res.status(400).json({ error: "Search query is required and must strictly be under 100 characters" });
+    if (!q || q.length < 2 || q.length > 50) {
+      return res.status(400).json({ error: "Search query must be 2-50 characters" });
     }
 
-    console.log("Global Search Query:", q);
-
     const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const safeQ = escapeRegex(q);
+    const safeQ = escapeRegex(q.trim());
     const searchRegex = new RegExp(safeQ, "i");
 
     // Find codes that match the name in our mapping

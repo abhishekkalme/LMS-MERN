@@ -4,6 +4,7 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinary");
 const Note = require("../models/Note");
 const { verifyAdmin } = require("../middleware/verifyToken");
+const { cacheDel } = require("../utils/cache");
 
 const router = express.Router();
 
@@ -82,6 +83,9 @@ router.post(
       });
 
       await newNote.save();
+
+      cacheDel("notes:recent");
+      cacheDel(`notes:catalog:${branch}:${year}:${semester}:${subject}`);
 
       res.status(200).json({
         message: "PDF uploaded successfully",

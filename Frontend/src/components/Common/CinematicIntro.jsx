@@ -39,13 +39,7 @@ const CinematicIntro = ({
                 height: size * 1.5,
                 borderColor: color.startsWith("#") ? color : undefined 
               }}
-              // Fallback class if color is not hex, but ideally we use hex or standard tailwind colors. 
-              // For now, let's assume color is a hex code or we rely on style.
-              // Actually, simply using style={{ borderColor: color }} works for hex/rgb/hsl.
-              // If the user passes "indigo-600", it won't work in style.
-              // Let's assume the user will pass a proper color string or hex.
-              // BUT the default was "indigo-600".
-              // Let's change default to hex #4f46e5 (Indigo 600)
+
               animate={{ 
                 scale: [1, 1.2, 1],
                 opacity: [0.3, 0.6, 0.3] 
