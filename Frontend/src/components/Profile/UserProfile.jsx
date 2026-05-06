@@ -10,7 +10,7 @@ import {
     FaGraduationCap, FaBriefcase, FaAward, FaHeart, FaLightbulb,
     FaRocket, FaRunning, FaCrown, FaGem, FaTools, FaUserFriends
 } from "react-icons/fa";
-import { SiLeetcode, SiCodeforces, SiJavascript, SiPython, SiJava, SiCplusplus, SiReact, SiNodedotjs, SiMongodb, SiGit, SiDocker, SiAws, SiFigma, SiFlutter } from "react-icons/si";
+import { SiLeetcode, SiCodeforces, SiJavascript, SiPython, SiOpenjdk, SiCplusplus, SiReact, SiNodedotjs, SiMongodb, SiGit, SiDocker, SiAws, SiFigma, SiFlutter } from "react-icons/si";
 import EditProfileModal from "./EditProfileModal";
 import SectionManager from "./SectionManager";
 import { Link, useNavigate } from "react-router-dom";
@@ -39,7 +39,7 @@ const SKILL_CATEGORIES = {
 const TECH_STACK = {
     JavaScript: { icon: SiJavascript, color: "#f7df1e" },
     Python: { icon: SiPython, color: "#3776ab" },
-    Java: { icon: SiJava, color: "#b07219" },
+    Java: { icon: SiOpenjdk, color: "#b07219" },
     "C++": { icon: SiCplusplus, color: "#00599c" },
     React: { icon: SiReact, color: "#61dafb" },
     "Node.js": { icon: SiNodedotjs, color: "#339933" },
