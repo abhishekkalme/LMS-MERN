@@ -10,7 +10,7 @@ import {
     FaGraduationCap, FaBriefcase, FaAward, FaHeart, FaLightbulb,
     FaRocket, FaRunning, FaCrown, FaGem, FaTools, FaUserFriends
 } from "react-icons/fa";
-import { SiLeetcode, SiCodeforces, SiJavascript, SiPython, SiOpenjdk, SiCplusplus, SiReact, SiNodedotjs, SiMongodb, SiGit, SiDocker, SiAws, SiFigma, SiFlutter } from "react-icons/si";
+import { SiLeetcode, SiCodeforces, SiJavascript, SiPython, SiOpenjdk, SiCplusplus, SiReact, SiNodedotjs, SiMongodb, SiGit, SiDocker, SiAmazonwebservices, SiFigma, SiFlutter } from "react-icons/si";
 import EditProfileModal from "./EditProfileModal";
 import SectionManager from "./SectionManager";
 import { Link, useNavigate } from "react-router-dom";
@@ -46,7 +46,7 @@ const TECH_STACK = {
     MongoDB: { icon: SiMongodb, color: "#47a248" },
     Git: { icon: SiGit, color: "#f05032" },
     Docker: { icon: SiDocker, color: "#2496ed" },
-    AWS: { icon: SiAws, color: "#ff9900" },
+    AWS: { icon: SiAmazonwebservices, color: "#ff9900" },
     Figma: { icon: SiFigma, color: "#f24e1e" },
     Flutter: { icon: SiFlutter, color: "#02569b" }
 };
